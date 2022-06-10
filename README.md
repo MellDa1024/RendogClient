@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/RendogClient/assets/RendogClient.png" style="width: 69%">
+    <img src="https://raw.githubusercontent.com/MellDa1024/RendogClientAsset/main/assets/RendogClient.png" style="width: 90%">
 </p>
 
 [Official RendogServer Discord](https://discord.gg/aKhYsfm)  
