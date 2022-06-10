@@ -2,18 +2,12 @@
     <img src="https://raw.githubusercontent.com/lambda-client/assets/main/lambda%20logo%20text.svg" style="width: 69%">
 </p>
 
-![GitHub all releases](https://img.shields.io/github/downloads/lambda-client/lambda/total?color=seagreen)
-![CodeFactor grade](https://img.shields.io/codefactor/grade/github/lambda-client/lambda?color=royalblue)
-![GitHub workflow status](https://img.shields.io/github/workflow/status/lambda-client/lambda/gradle_build?logo=gradle)
-[![Discord](https://img.shields.io/discord/834570721070022687?color=skyblue&logo=discord&logoColor=white)](https://discord.gg/QjfBxJzE5x)
-![GitHub repo size](https://img.shields.io/github/repo-size/lambda-client/lambda)
-![Lines of code](https://img.shields.io/tokei/lines/github/lambda-client/lambda?color=lightcoral&label=lines%20of%20code)
+[Official RendogServer Discord](https://discord.gg/aKhYsfm)  
+렌독클라이언트는 기존에 있던 무정부 서버 전용 클라이언트이면서도 오픈 소스 클라이언트인 "Lambda" 클라이언트의 포크 버전입니다.  
+렌독클라이언트의 경우 기존 Lambda 클라이언트에서 흔히 "핵"이라고 여겨지는 모듈들을 전부 제거하였고, 그 대신 렌독서버의 플레이 경험을 더욱 향상시켜줄 모듈들을 개발하여 적용했습니다.
 
-Lambda is a free, open-source, Minecraft 1.12.2 utility mod made for the anarchy experience.
-A visionary plugin system that allows additional modules to be added, without the need to create a fork!
-Customize your experience, and improve your efficiency!
-
-Find our plugins [here](https://github.com/lambda-plugins).
+혹여나 다른 서버에서의 악용 방지를 위해 렌독서버가 아닌 서버에 접속 시 클라이언트가 자동으로 서버를 나가게 설계되어있습니다.  
+물론 오픈 소스이기에 코드 수정 후 접속하면 그만이지만, 굳이 그렇게까지 할 필요가 있나 싶네요.
 
 <p align="center">
     <a href="https://github.com/lambda-client/lambda/releases/download/3.1/lambda-3.1.jar"><img alt="lambda-3.1.jar" src="https://raw.githubusercontent.com/lambda-client/assets/main/download_button_3.1.png" width="70%" height="70%"></a>
@@ -44,22 +38,6 @@ How do I...
 </details>
 
 <details>
-  <summary>... install plugins?</summary>
-
-> Open the ClickGUI by pressing `y`. The window called `Plugins` contains all installed plugins. Either you get an official plugin by opening the `Remote Plugins` window which are hosted on [GitHub](https://github.com/lambda-plugins/). Or if you want to load a third party plugin click the `Import` button and put the jar into the folder.
-
-> CAUTION: Third party plugins can contain dangerous code! Only use plugins from trusted sources!
-
-</details>
-
-<details>
-  <summary>... export KAMI blue config to Lambda?</summary>
-
-> Rename `.minecraft/kamiblue` to `.minecraft/lambda`
-
-</details>
-
-<details>
   <summary>... fix most crashes on startup?</summary>
 
 > Possibly you have multiple mods loaded. Forge loads mods in alphabetical order, so you can change the name of the Mod jar to make it load earlier or later. Add for example an exclamation mark to lambda jar to make it load first.
@@ -81,10 +59,6 @@ We recommend using the [Temurin](https://adoptium.net/?variant=openjdk8&jvmVaria
 > Run the command `;set clickgui scale 100`
 
 </details>
-
-<p align="center">
-    <img alt="" src="https://raw.githubusercontent.com/lambda-client/assets/main/footer.png">
-</p>
 
 ## Contributing
 
@@ -125,10 +99,7 @@ Test if the environment is set up correctly by building the client and run it in
 
 [MinecraftForge](https://github.com/MinecraftForge) for [Forge](https://github.com/MinecraftForge/MinecraftForge)
 
-Our [contributors](https://github.com/lambda-client/lambda/graphs/contributors) ❤️
-
-### Stargazers
-[![Stargazers](https://starchart.cc/lambda-client/lambda.svg)](https://starchart.cc/lambda-client/lambda)
+[Lambda](https://github.com/lambda-client) for orignal client [lambda](https://github.com/lambda-client/lambda)
 
 > ### Disclaimer
 > This software does not contain any copyrighted Minecraft code. This is a Forge utility mod, Only meant for use in anarchy environments. Do not use without permission of server administration.
