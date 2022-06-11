@@ -14,9 +14,8 @@ import org.lwjgl.opengl.GL11.*
 internal object PlayerModel : HudElement(
     name = "PlayerModel",
     category = Category.PLAYER,
-    description = "Your player icon, or players you attacked"
+    description = "Your player icon"
 ) {
-    private val resetDelay by setting("Reset Delay", 100, 0..200, 5)
     private val emulatePitch by setting("Emulate Pitch", true)
     private val emulateYaw by setting("Emulate Yaw", false)
 
@@ -30,12 +29,7 @@ internal object PlayerModel : HudElement(
 
         super.renderHud(vertexHelper)
         runSafe {
-            val attackedEntity: EntityLivingBase? = player.lastAttackedEntity
-            val entity = if (attackedEntity != null && player.ticksExisted - player.lastAttackedEntityTime <= resetDelay) {
-                attackedEntity
-            } else {
-                player
-            }
+            val entity = player
 
             val yaw = if (emulateYaw) interpolateAndWrap(entity.prevRotationYaw, entity.rotationYaw) else 0.0f
             val pitch = if (emulatePitch) interpolateAndWrap(entity.prevRotationPitch, entity.rotationPitch) else 0.0f
