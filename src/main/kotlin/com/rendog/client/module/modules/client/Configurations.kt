@@ -20,9 +20,15 @@ import com.rendog.client.util.text.formatValue
 import com.rendog.client.util.threads.BackgroundScope
 import com.rendog.client.util.threads.defaultScope
 import com.rendog.client.commons.interfaces.DisplayEnum
+import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.event.listener.listener
+import com.rendog.client.manager.managers.GuideManager
+import com.rendog.client.util.threads.safeListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.minecraft.network.play.server.SPacketDisconnect
+import net.minecraft.util.text.TextComponentString
+import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
@@ -48,6 +54,7 @@ internal object Configurations : AbstractModule(
 
     private val timer = TickTimer(TimeUnit.MINUTES)
     private var connected = false
+    private val rendogip = arrayOf("rendog.kr", "global.rendog.kr", "private-scn-sev99.scn.pw:1799")
 
     init {
         BackgroundScope.launchLooping("Config Auto Saving", 60000L) {
@@ -60,6 +67,23 @@ internal object Configurations : AbstractModule(
 
         listener<ConnectionEvent.Connect> {
             connected = true
+        }
+
+        safeListener<TickEvent.ClientTickEvent> {
+            if (!connected) return@safeListener
+
+            val ip = mc.currentServerData?.serverIP ?: return@safeListener
+            if (ip.lowercase() !in rendogip) {
+                connected = false
+                log("RendogClient is only available in RendogServer.")
+            }
+            if (!GuideManager.isGuide(mc.session.username) && RendogMod.VERSION.contains("GuideOnly")) {
+                if (mc.session.username != "Mell_Da") {
+                    connected = false
+                    log("This Version is Guide-Only. You are not on the Guide List.")
+                }
+            }
+            if (mc.isIntegratedServerRunning) return@safeListener
         }
     }
 
@@ -95,6 +119,10 @@ internal object Configurations : AbstractModule(
             setting.value = prev
             ConfigManager.save(GenericConfig)
         }
+    }
+
+    private fun SafeClientEvent.log(msg : String) {
+        connection.handleDisconnect(SPacketDisconnect(TextComponentString(msg)))
     }
 
     init {

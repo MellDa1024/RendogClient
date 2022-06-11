@@ -22,7 +22,7 @@ object CustomFont : Module(
         getMatchingFontName(value) ?: getMatchingFontName(prev) ?: DEFAULT_FONT_NAME
     })
     private val sizeSetting by setting("Size", 1.0f, 0.5f..2.0f, 0.05f)
-    private val shadowSetting by setting("Shadow", false)
+    private val shadowSetting by setting("Shadow", true)
     private val gapSetting by setting("Gap", 0.0f, -10f..10f, 0.5f)
     private val lineSpaceSetting by setting("Line Space", 0.8f, -10f..10f, 0.05f)
     private val baselineOffsetSetting by setting("Baseline Offset", 2.4f, -10.0f..10.0f, 0.05f)

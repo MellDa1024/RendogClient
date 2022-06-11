@@ -33,7 +33,7 @@ object MessageSendHelper {
         sendRawChatMessage(coloredName('4') + message)
     }
 
-    fun sendLambdaCommand(command: String) {
+    fun sendRendogCommand(command: String) {
         CommandManager.runCommand(command.removePrefix(CommandManager.prefix))
     }
 

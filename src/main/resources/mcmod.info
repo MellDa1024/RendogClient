@@ -8,19 +8,9 @@
     "url": "https://github.com/MellDa1024/RendogClient",
     "updateUrl": "",
     "authorList": [
-      "Constructor#9948",
-      "huddy987#5085",
-      "cz#6171",
-      "ToxicAven#3678",
-      "Nep Nep#3025",
-      "scorbett123#5313",
-      "hlsl#1315",
-      "ItCameFr0mMars#6559",
-      "romtec#6969",
-      "Save___G#4444",
-      "EnigmA_008#1505"
+      "MellDa#0001"
     ],
-    "credits": "Thanks to 086 for the original KAMI\nThanks to the team of KAMI Blue\nSpecial thanks to all contributors",
+    "credits": "Thanks to 086 for the original KAMI\nThanks to the team of KAMI Blue\nThanks to the team of Lambda",
     "logoFile": "Rendog.png",
     "dependencies": []
   }

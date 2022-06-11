@@ -14,31 +14,19 @@ object ItemModel : Module(
     description = "Modify hand item rendering in first person",
     category = Category.RENDER
 ) {
-    private val mode by setting("Mode", Mode.BOTH)
     private val page by setting("Page", Page.POSITION)
 
     private val posX by setting("Pos X", 0.0f, -5.0f..5.0f, 0.025f, { page == Page.POSITION })
     private val posY by setting("Pos Y", 0.0f, -5.0f..5.0f, 0.025f, { page == Page.POSITION })
     private val posZ by setting("Pos Z", 0.0f, -5.0f..5.0f, 0.025f, { page == Page.POSITION })
-    private val posXR by setting("Pos X Right", 0.0f, -5.0f..5.0f, 0.025f, { page == Page.POSITION && mode == Mode.SEPARATE })
-    private val posYR by setting("Pos Y Right", 0.0f, -5.0f..5.0f, 0.025f, { page == Page.POSITION && mode == Mode.SEPARATE })
-    private val posZR by setting("Pos Z Right", 0.0f, -5.0f..5.0f, 0.025f, { page == Page.POSITION && mode == Mode.SEPARATE })
 
     private val rotateX by setting("Rotate X", 0.0f, -180.0f..180.0f, 1.0f, { page == Page.ROTATION })
     private val rotateY by setting("Rotate Y", 0.0f, -180.0f..180.0f, 1.0f, { page == Page.ROTATION })
     private val rotateZ by setting("Rotate Z", 0.0f, -180.0f..180.0f, 1.0f, { page == Page.ROTATION })
-    private val rotateXR by setting("Rotate X Right", 0.0f, -180.0f..180.0f, 1.0f, { page == Page.ROTATION && mode == Mode.SEPARATE })
-    private val rotateYR by setting("Rotate Y Right", 0.0f, -180.0f..180.0f, 1.0f, { page == Page.ROTATION && mode == Mode.SEPARATE })
-    private val rotateZR by setting("Rotate Z Right", 0.0f, -180.0f..180.0f, 1.0f, { page == Page.ROTATION && mode == Mode.SEPARATE })
 
     private val scale by setting("Scale", 1.0f, 0.1f..3.0f, 0.025f, { page == Page.SCALE })
-    private val scaleR by setting("Scale Right", 1.0f, 0.1f..3.0f, 0.025f, { page == Page.SCALE && mode == Mode.SEPARATE })
 
     private val modifyHand by setting("Modify Hand", false)
-
-    private enum class Mode {
-        BOTH, SEPARATE
-    }
 
     private enum class Page {
         POSITION, ROTATION, SCALE
@@ -50,14 +38,8 @@ object ItemModel : Module(
 
         val enumHandSide = getEnumHandSide(player, hand)
 
-        if (mode == Mode.BOTH) {
-            translate(posX, posY, posZ, getSideMultiplier(enumHandSide))
-        } else {
-            if (enumHandSide == EnumHandSide.LEFT) {
-                translate(posX, posY, posZ, -1.0f)
-            } else {
-                translate(posXR, posYR, posZR, 1.0f)
-            }
+        if (enumHandSide == EnumHandSide.RIGHT) {
+            translate(posX, posY, posZ, -1.0f)
         }
     }
 
@@ -70,18 +52,9 @@ object ItemModel : Module(
         if (isDisabled || !modifyHand && stack.isEmpty) return
 
         val enumHandSide = getEnumHandSide(player, hand)
-
-        if (mode == Mode.BOTH) {
-            rotate(rotateX, rotateY, rotateZ, getSideMultiplier(enumHandSide))
-            GlStateManager.scale(scale, scale, scale)
-        } else {
-            if (enumHandSide == EnumHandSide.LEFT) {
-                rotate(rotateX, rotateY, rotateZ, -1.0f)
-                GlStateManager.scale(scale, scale, scale)
-            } else {
-                rotate(rotateXR, rotateYR, rotateZR, 1.0f)
-                GlStateManager.scale(scaleR, scaleR, scaleR)
-            }
+        if (enumHandSide == EnumHandSide.RIGHT) {
+              rotate(rotateX, rotateY, rotateZ, -1.0f)
+              GlStateManager.scale(scale, scale, scale)
         }
     }
 
@@ -93,7 +66,4 @@ object ItemModel : Module(
 
     private fun getEnumHandSide(player: AbstractClientPlayer, hand: EnumHand): EnumHandSide =
         if (hand == EnumHand.MAIN_HAND) player.primaryHand else player.primaryHand.opposite()
-
-    private fun getSideMultiplier(side: EnumHandSide) =
-        if (side == EnumHandSide.LEFT) -1.0f else 1.0f
 }

@@ -102,7 +102,7 @@ object GlStateUtils {
         rescale(Wrapper.minecraft.displayWidth.toDouble(), Wrapper.minecraft.displayHeight.toDouble())
     }
 
-    fun rescaleLambda() {
+    fun rescaleRendog() {
         val scale = ClickGUI.getScaleFactor()
         rescale(Wrapper.minecraft.displayWidth / scale, Wrapper.minecraft.displayHeight / scale)
     }

@@ -46,7 +46,6 @@
     "render.MixinRenderLivingBase",
     "render.MixinRenderManager",
     "render.MixinRenderPlayer",
-    "render.MixinTileEntityRendererDispatcher",
-    "world.MixinWorld"
+    "render.MixinTileEntityRendererDispatcher"
   ]
 }

@@ -22,7 +22,7 @@ object WebUtils {
     fun updateCheck() {
         mainScope.launch {
             try {
-                RendogMod.LOG.info("Attempting Lambda update check...")
+                RendogMod.LOG.info("Attempting RendogClient update check...")
 
                 val rawJson = ConnectionUtils.requestRawJsonFrom(RendogMod.RELEASES_API) {
                     throw it
@@ -37,14 +37,14 @@ object WebUtils {
                         val localVersion = DefaultArtifactVersion(RendogMod.VERSION)
                         when {
                             remoteVersion == localVersion -> {
-                                RendogMod.LOG.info("Your Lambda (" + RendogMod.VERSION + ") is up-to-date with the latest stable release.")
+                                RendogMod.LOG.info("Your RendogClient (" + RendogMod.VERSION + ") is up-to-date with the latest stable release.")
                             }
                             remoteVersion > localVersion -> {
                                 isLatestVersion = false
-                                RendogMod.LOG.warn("Your Lambda is outdated.\nCurrent: ${RendogMod.VERSION}\nLatest: $latestVersion")
+                                RendogMod.LOG.warn("Your RendogClient is outdated.\nCurrent: ${RendogMod.VERSION}\nLatest: $latestVersion")
                             }
                             remoteVersion < localVersion -> {
-                                RendogMod.LOG.info("Your Lambda (" + RendogMod.VERSION + ") is ahead of time.")
+                                RendogMod.LOG.info("Your RendogClient (" + RendogMod.VERSION + ") is ahead of time.")
                             }
                         }
                     }

@@ -45,7 +45,7 @@ object FriendHighlight : Module(
 
     private fun noFriendsCheck() = FriendManager.empty.also {
         if (it) {
-            MessageSendHelper.sendErrorMessage("$chatName You don't have any friends added, silly! Go add some friends before using the module")
+            MessageSendHelper.sendErrorMessage("$chatName You don't have any friends added. add some friends before using the module")
             disable()
         }
     }

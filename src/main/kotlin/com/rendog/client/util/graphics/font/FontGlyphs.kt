@@ -126,7 +126,7 @@ class FontGlyphs(private val font: Font, private val fallbackFont: Font) {
                 graphics2D.drawImage(charImage, positionX, positionY, null) // Draw it here
 
                 positionX += charImage.width + 2 // Move right for next character
-                builder // Return the char info builder to lambda
+                builder // Return the char info builder to Rendog
             }
 
             val textureHeight = min(MathUtils.ceilToPOT(positionY + rowHeight), MAX_TEXTURE_HEIGHT)

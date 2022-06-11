@@ -1,9 +1,7 @@
 package com.rendog.client.util
 
 import com.rendog.client.RendogMod
-import com.rendog.client.manager.managers.FriendManager
-import com.rendog.client.manager.managers.UUIDManager
-import com.rendog.client.manager.managers.WaypointManager
+import com.rendog.client.manager.managers.*
 import com.rendog.client.setting.ConfigManager
 import com.rendog.client.setting.GenericConfig
 import com.rendog.client.setting.ModuleConfig
@@ -19,6 +17,8 @@ object ConfigUtils {
         var success = ConfigManager.loadAll()
         success = WaypointManager.loadWaypoints() && success // Waypoint
         success = FriendManager.loadFriends() && success // Friends
+        success = GuideManager.loadGuides() && success
+        success = RendogCDManager.loadCoolDownData() && success
         success = UUIDManager.load() && success // UUID Cache
 
         return success
@@ -65,54 +65,4 @@ object ConfigUtils {
             }
         }
     }
-
-    // TODO: Introduce a version helper for LambdaMod.BUILD_NUMBER for version-specific configs. This should be theoretically fine for now
-    fun moveAllLegacyConfigs() {
-        moveLegacyConfig("lambda/generic.json", "lambda/generic.bak", GenericConfig)
-        moveLegacyConfig("lambda/modules/default.json", "lambda/modules/default.bak", ModuleConfig)
-        moveLegacyConfig("KAMIBlueCoords.json", "lambda/waypoints.json")
-        moveLegacyConfig("KAMIBlueWaypoints.json", "lambda/waypoints.json")
-        moveLegacyConfig("KAMIBlueMacros.json", "lambda/macros.json")
-        moveLegacyConfig("KAMIBlueFriends.json", "lambda/friends.json")
-        moveLegacyConfig("chat_filter.json", "lambda/chat_filter.json")
-    }
-
-    private fun moveLegacyConfig(oldConfigIn: String, oldConfigBakIn: String, newConfig: IConfig) {
-        if (newConfig.file.exists() || newConfig.backup.exists()) return
-
-        val oldConfig = File(oldConfigIn)
-        val oldConfigBak = File(oldConfigBakIn)
-
-        if (!oldConfig.exists() && !oldConfigBak.exists()) return
-
-        try {
-            newConfig.file.parentFile.mkdirs()
-            Files.move(oldConfig.absoluteFile.toPath(), newConfig.file.absoluteFile.toPath())
-        } catch (e: Exception) {
-            RendogMod.LOG.warn("Error moving legacy config", e)
-        }
-
-        try {
-            newConfig.backup.parentFile.mkdirs()
-            Files.move(oldConfigBak.absoluteFile.toPath(), newConfig.backup.absoluteFile.toPath())
-        } catch (e: Exception) {
-            RendogMod.LOG.warn("Error moving legacy config", e)
-        }
-    }
-
-    private fun moveLegacyConfig(oldConfigIn: String, newConfigIn: String) {
-        val newConfig = File(newConfigIn)
-        if (newConfig.exists()) return
-
-        val oldConfig = File(oldConfigIn)
-        if (!oldConfig.exists()) return
-
-        try {
-            newConfig.parentFile.mkdirs()
-            Files.move(oldConfig.absoluteFile.toPath(), newConfig.absoluteFile.toPath())
-        } catch (e: Exception) {
-            RendogMod.LOG.warn("Error moving legacy config", e)
-        }
-    }
-
 }

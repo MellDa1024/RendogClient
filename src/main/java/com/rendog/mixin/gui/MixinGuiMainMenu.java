@@ -1,9 +1,7 @@
 package com.rendog.mixin.gui;
 
 import com.rendog.client.RendogMod;
-import com.rendog.client.gui.mc.RendogGuiIncompat;
 import com.rendog.client.module.modules.client.MenuShader;
-import com.rendog.client.util.KamiCheck;
 import com.rendog.client.util.WebUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -29,10 +27,6 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     public void drawScreen$Inject$RETURN(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        if (KamiCheck.INSTANCE.isKami() && !KamiCheck.INSTANCE.getDidDisplayWarning()) {
-            KamiCheck.INSTANCE.setDidDisplayWarning(true);
-            mc.displayGuiScreen(new RendogGuiIncompat());
-        }
         FontRenderer fr = fontRenderer;
         String slogan = TextFormatting.WHITE + RendogMod.NAME + " " + TextFormatting.GRAY + RendogMod.VERSION;
         String version;

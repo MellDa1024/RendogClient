@@ -20,7 +20,7 @@ object MenuShader : Module(
     enabledByDefault = true
 ) {
     private val mode by setting("Mode", Mode.SET)
-    private val shader by setting("Shader", ShaderEnum.CLOUDS, { mode == Mode.SET })
+    private val shader by setting("Shader", ShaderEnum.SPACE, { mode == Mode.SET })
 
     private enum class Mode {
         RANDOM, SET

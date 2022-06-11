@@ -2,7 +2,6 @@ package com.rendog.client
 
 import com.rendog.client.event.ForgeEventProcessor
 import com.rendog.client.util.ConfigUtils
-import com.rendog.client.util.KamiCheck
 import com.rendog.client.util.WebUtils
 import com.rendog.client.util.threads.BackgroundScope
 import net.minecraftforge.common.MinecraftForge
@@ -25,10 +24,10 @@ class RendogMod {
 
     companion object {
         const val NAME = "RendogClient"
-        const val ID = "rendogclient"
+        const val ID = "rendog"
         const val DIRECTORY = "RendogClient/"
 
-        const val VERSION = "b1"
+        const val VERSION = "GuideOnlyb1"
 
         const val DEPENDENCIES = "required-after:forge@[14.23.5.2860,);"
 
@@ -61,14 +60,11 @@ class RendogMod {
 
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
 
-        ConfigUtils.moveAllLegacyConfigs()
         ConfigUtils.loadAll()
 
         BackgroundScope.start()
 
         WebUtils.updateCheck()
-
-        KamiCheck.runCheck()
 
         LOG.info("$NAME initialized!")
     }

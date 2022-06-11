@@ -6,10 +6,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.newSingleThreadContext
 
 /**
- * Single thread scope to use in Lambda
+ * Single thread scope to use in RendogClient
  */
 @Suppress("EXPERIMENTAL_API_USAGE")
-val mainScope = CoroutineScope(newSingleThreadContext("Lambda Main"))
+val mainScope = CoroutineScope(newSingleThreadContext("Rendog Main"))
 
 /**
  * Common scope with [Dispatchers.Default]

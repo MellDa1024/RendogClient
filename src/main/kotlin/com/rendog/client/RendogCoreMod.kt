@@ -6,7 +6,7 @@ import org.spongepowered.asm.launch.MixinBootstrap
 import org.spongepowered.asm.mixin.MixinEnvironment
 import org.spongepowered.asm.mixin.Mixins
 
-@IFMLLoadingPlugin.Name("LambdaCoreMod")
+@IFMLLoadingPlugin.Name("RendogCoreMod")
 @IFMLLoadingPlugin.MCVersion("1.12.2")
 class RendogCoreMod : IFMLLoadingPlugin {
     override fun getASMTransformerClass(): Array<String> {
@@ -28,12 +28,12 @@ class RendogCoreMod : IFMLLoadingPlugin {
     }
 
     init {
-        val logger = LogManager.getLogger("Lambda")
+        val logger = LogManager.getLogger("Rendog")
 
         MixinBootstrap.init()
         Mixins.addConfigurations("mixins.rendog.json")
 
         MixinEnvironment.getDefaultEnvironment().obfuscationContext = "searge"
-        logger.info("Lambda mixins initialised.")
+        logger.info("Rendog mixins initialised.")
     }
 }

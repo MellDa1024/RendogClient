@@ -1,6 +1,7 @@
 package com.rendog.client.module.modules.render
 
 import com.rendog.client.manager.managers.FriendManager
+import com.rendog.client.manager.managers.GuideManager
 import com.rendog.client.module.Category
 import com.rendog.client.module.Module
 import com.rendog.client.util.color.EnumTextColor
@@ -15,15 +16,20 @@ object ExtraTab : Module(
 ) {
     private val tabSize by setting("Max Players", 265, 80..400, 5)
     val highlightFriends by setting("Highlight Friends", true)
-    private val color by setting("Color", EnumTextColor.GREEN, { highlightFriends })
+    private val friendcolor by setting("Friend Color", EnumTextColor.GREEN, { highlightFriends })
+    val highlightGuide by setting("Highlight Guides", true)
+    private val guidecolor by setting("Guide Color", EnumTextColor.YELLOW, { highlightGuide })
 
     @JvmStatic
     fun getPlayerName(info: NetworkPlayerInfo): String {
         val name = info.displayName?.formattedText
             ?: ScorePlayerTeam.formatPlayerName(info.playerTeam, info.gameProfile.name)
 
-        return if (FriendManager.isFriend(name)) {
-            color format name
+        return if (GuideManager.isGuide(name.trim())) {
+            guidecolor format name
+        }
+        else if (FriendManager.isFriend(name.trim())) {
+            friendcolor format name
         } else {
             name
         }

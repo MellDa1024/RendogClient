@@ -1,6 +1,6 @@
 package com.rendog.mixin.render;
 
-import com.rendog.client.module.modules.render.NoRender;
+import com.rendog.client.module.modules.render.NoArmor;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinTileEntityRendererDispatcher {
     @Inject(method = "render(Lnet/minecraft/tileentity/TileEntity;FI)V", at = @At("HEAD"), cancellable = true)
     public void render(TileEntity entity, float partialTicks, int destroyStage, CallbackInfo ci) {
-        if (NoRender.INSTANCE.isEnabled()) {
-            if (NoRender.INSTANCE.getEntityList().contains(entity.getClass())) {
+        if (NoArmor.INSTANCE.isEnabled()) {
+            if (NoArmor.INSTANCE.getEntityList().contains(entity.getClass())) {
                 ci.cancel();
             }
         }

@@ -27,6 +27,7 @@ internal object ModuleList : HudElement(
     category = Category.CLIENT,
     description = "List of enabled modules",
     enabledByDefault = true
+
 ) {
 
     private val sortingMode by setting("Sorting Mode", SortingMode.LENGTH)
