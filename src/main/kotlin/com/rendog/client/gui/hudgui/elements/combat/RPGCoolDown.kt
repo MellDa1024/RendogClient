@@ -32,7 +32,7 @@ internal object RPGCoolDown : HudElement(
     category = Category.COMBAT,
     description = "Show Weapon's Cooldown"
 ) {
-    private val method by setting("Method", Method.DataBase, description = "What kind of method to manage cooldown.\nClick Method Info for more information.")
+    private val method by setting("Method", Method.Both, description = "What kind of method to manage cooldown.\nClick Method Info for more information.")
 
     private val horizontal by setting("Horizontal", true)
     private val background by setting("BackGround", true)

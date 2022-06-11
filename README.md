@@ -9,53 +9,32 @@ RendogClient의 경우 기존 Lambda 클라이언트에서 흔히 "핵"이라고
 혹여나 다른 서버에서의 악용 방지를 위해 렌독서버가 아닌 서버에 접속 시 클라이언트가 자동으로 서버를 나가게 설계되어있습니다.  
 물론 오픈 소스이기에 코드 수정 후 접속하면 그만이지만, 굳이 그렇게까지 할 필요가 있나 싶네요.
 
-<p align="center">
-    <a href="https://github.com/lambda-client/lambda/releases/download/3.1/lambda-3.1.jar"><img alt="lambda-3.1.jar" src="https://raw.githubusercontent.com/lambda-client/assets/main/download_button_3.1.png" width="70%" height="70%"></a>
-</p>
 
-## Installation
-1. Install Minecraft 1.12.2
-2. Install Forge
-3. Download the mod file [here](https://github.com/lambda-client/lambda/releases/download/3.1/lambda-3.1.jar)
-4. Put the file in your `.minecraft/mods` folder
+## 설치 방법
+1. Minecraft 1.12.2 버전을 설치합니다.
+2. Forge(버전 : 2860)을 설치합니다.
+3. 모드를 [여기서](https://github.com/lambda-client/lambda/releases/download/3.1/lambda-3.1.jar) 다운받습니다.
+4. 모드 파일을 `.minecraft/mods` 으로 옮깁니다.
 
 ## FAQ
 
-How do I...
-
 <details>
-  <summary>... open the ClickGUI?</summary>
+  <summary>ClickGUI를 여는 법</summary>
 
-> Press `Y`
+> `Y`를 누르세요
 
 </details>
 
 <details>
-  <summary>... execute a command?</summary>
+  <summary>명령어를 실행시키는 방법</summary>
 
-> Use the ingame chat with the prefix `;`
-
-</details>
-
-<details>
-  <summary>... fix most crashes on startup?</summary>
-
-> Possibly you have multiple mods loaded. Forge loads mods in alphabetical order, so you can change the name of the Mod jar to make it load earlier or later. Add for example an exclamation mark to lambda jar to make it load first.
-> If you got `Error: java.lang.IllegalAccessError: tried to access field net.minecraft.util.math.Vec3i.field_177962_a from class baritone.k` remove the noverify tag from your arguments.
+> 인게임 쳇에서 `;help commands`를 입력해보세요
 
 </details>
 
 <details>
-  <summary>... fix problems with Gradle?</summary>
+  <summary>ClickGui의 크기를 초기화 하는 법</summary>
 
-> Make sure you have a Java 8 JDK installed and in your PATH.
-We recommend using the [Temurin](https://adoptium.net/?variant=openjdk8&jvmVariant=hotspot/) variant of OpenJDK 
-
-</details>
-
-<details>
-  <summary>... reset the ClickGUI scale?</summary>
-
-> Run the command `;set clickgui scale 100`
+>  `;set clickgui scale 100`를 입력해보세요
 
 </details>
