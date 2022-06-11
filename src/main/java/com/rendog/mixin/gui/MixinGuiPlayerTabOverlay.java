@@ -30,7 +30,7 @@ public class MixinGuiPlayerTabOverlay {
 
     @Inject(method = "getPlayerName", at = @At("HEAD"), cancellable = true)
     public void getPlayerName(NetworkPlayerInfo networkPlayerInfoIn, CallbackInfoReturnable<String> cir) {
-        if (ExtraTab.INSTANCE.isEnabled() && ExtraTab.INSTANCE.getHighlightFriends()) {
+        if (ExtraTab.INSTANCE.isEnabled() && ExtraTab.INSTANCE.getHighlightGuide()) {
             cir.setReturnValue(ExtraTab.getPlayerName(networkPlayerInfoIn));
         }
     }

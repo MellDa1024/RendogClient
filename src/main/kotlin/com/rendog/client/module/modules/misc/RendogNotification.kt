@@ -1,6 +1,7 @@
 package com.rendog.client.module.modules.misc
 
 import com.rendog.client.event.listener.listener
+import com.rendog.client.manager.managers.GuideManager
 import com.rendog.client.module.Category
 import com.rendog.client.util.text.MessageSendHelper
 import com.rendog.client.module.Module
@@ -17,7 +18,7 @@ import java.awt.*
 internal object RendogNotification : Module(
     name = "RendogNotification",
     category = Category.MISC,
-    description = "Rendog Notification",
+    description = "Rendog Notification, only for guide.",
 ) {
     private val page by setting("Page", Page.WHISPER)
 
@@ -47,7 +48,8 @@ internal object RendogNotification : Module(
     init{
         onEnable {
             try {
-                if (!SystemTray.isSupported()) {
+                if (!GuideManager.isGuide(mc.session.username)) disable()
+                else if (!SystemTray.isSupported()) {
                     MessageSendHelper.sendErrorMessage("$chatName Toast System Not supported, Toast Notification will be disabled.")
                     whispertoast = false
                     tradetoast = false

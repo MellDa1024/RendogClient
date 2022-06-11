@@ -16,7 +16,6 @@ object ConfigUtils {
     fun loadAll(): Boolean {
         var success = ConfigManager.loadAll()
         success = WaypointManager.loadWaypoints() && success // Waypoint
-        success = FriendManager.loadFriends() && success // Friends
         success = GuideManager.loadGuides() && success
         success = RendogCDManager.loadCoolDownData() && success
         success = UUIDManager.load() && success // UUID Cache
@@ -27,7 +26,6 @@ object ConfigUtils {
     fun saveAll(): Boolean {
         var success = ConfigManager.saveAll()
         success = WaypointManager.saveWaypoints() && success // Waypoint
-        success = FriendManager.saveFriends() && success // Friends
         success = UUIDManager.save() && success // UUID Cache
 
         return success

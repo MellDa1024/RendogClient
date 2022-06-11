@@ -1,7 +1,6 @@
 package com.rendog.client.util
 
 import com.rendog.client.event.SafeClientEvent
-import com.rendog.client.manager.managers.FriendManager
 import com.rendog.client.util.MovementUtils.calcMoveYaw
 import com.rendog.client.util.items.id
 import com.rendog.client.util.math.VectorUtils.toBlockPos
@@ -136,7 +135,7 @@ object EntityUtils {
         return entityList
     }
 
-    fun playerTypeCheck(player: EntityPlayer, friend: Boolean, sleeping: Boolean) = (friend || !FriendManager.isFriend(player.name))
+    fun playerTypeCheck(player: EntityPlayer, friend: Boolean, sleeping: Boolean) = (friend || true)
         && (sleeping || !player.isPlayerSleeping)
 
     /**

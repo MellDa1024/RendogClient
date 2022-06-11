@@ -1,7 +1,5 @@
 package com.rendog.client.module.modules.render
 
-import com.rendog.client.RendogMod
-import com.rendog.client.manager.managers.FriendManager
 import com.rendog.client.manager.managers.GuideManager
 import com.rendog.client.module.Category
 import com.rendog.client.module.Module
@@ -16,8 +14,6 @@ object ExtraTab : Module(
     category = Category.RENDER
 ) {
     private val tabSize by setting("Max Players", 265, 80..400, 5)
-    val highlightFriends by setting("Highlight Friends", true)
-    private val friendcolor by setting("Friend Color", EnumTextColor.GREEN, { highlightFriends })
     val highlightGuide by setting("Highlight Guides", true)
     private val guidecolor by setting("Guide Color", EnumTextColor.YELLOW, { highlightGuide })
 
@@ -28,9 +24,6 @@ object ExtraTab : Module(
 
         return if (GuideManager.isGuide(removecolorcode(name))) {
             guidecolor format removecolorcode(name)
-        }
-        else if (FriendManager.isFriend(removecolorcode(name))) {
-            friendcolor format removecolorcode(name)
         } else {
             name
         }
