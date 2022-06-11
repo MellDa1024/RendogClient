@@ -1,6 +1,5 @@
 package com.lambda.client.command.commands
 
-import com.lambda.client.LambdaMod
 import com.lambda.client.command.ClientCommand
 import com.lambda.client.command.CommandManager
 import com.lambda.client.util.text.MessageSendHelper

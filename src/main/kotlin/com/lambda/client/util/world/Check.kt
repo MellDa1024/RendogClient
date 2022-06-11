@@ -3,9 +3,6 @@ package com.lambda.client.util.world
 import com.lambda.client.event.SafeClientEvent
 import com.lambda.client.util.Wrapper
 import com.lambda.client.util.math.VectorUtils.toVec3dCenter
-import com.lambda.client.util.world.isLiquid
-import com.lambda.client.util.world.isReplaceable
-import com.lambda.client.util.world.isWater
 import net.minecraft.entity.Entity
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB

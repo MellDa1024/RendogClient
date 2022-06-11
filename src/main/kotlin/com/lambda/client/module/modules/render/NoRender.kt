@@ -1,39 +1,16 @@
 package com.lambda.client.module.modules.render
 
-import com.lambda.client.event.Phase
 import com.lambda.client.event.events.PacketEvent
-import com.lambda.client.event.events.RenderEntityEvent
+import com.lambda.client.event.listener.listener
 import com.lambda.client.module.Category
 import com.lambda.client.module.Module
-import com.lambda.client.util.threads.runSafe
-import com.lambda.client.util.threads.safeListener
-import com.lambda.client.event.listener.listener
-import net.minecraft.block.BlockSnow
-import net.minecraft.client.entity.EntityOtherPlayerMP
-import net.minecraft.client.particle.Particle
-import net.minecraft.client.particle.ParticleFirework
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.client.tutorial.TutorialSteps
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.effect.EntityLightningBolt
-import net.minecraft.entity.item.*
+import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.monster.EntityMob
-import net.minecraft.entity.passive.IAnimals
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
-import net.minecraft.init.MobEffects
 import net.minecraft.inventory.EntityEquipmentSlot
-import net.minecraft.network.play.server.*
-import net.minecraft.tileentity.*
-import net.minecraft.util.ResourceLocation
+import net.minecraft.network.play.server.SPacketParticles
 import net.minecraft.world.EnumSkyBlock
-import net.minecraftforge.client.event.RenderBlockOverlayEvent
-import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType
-import net.minecraftforge.client.event.RenderGameOverlayEvent
-import net.minecraftforge.fml.common.gameevent.TickEvent
-import net.minecraftforge.registries.GameData
-import org.lwjgl.opengl.GL11.GL_QUADS
 
 object NoRender : Module(
     name = "NoRender",
