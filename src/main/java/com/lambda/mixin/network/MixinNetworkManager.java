@@ -2,7 +2,6 @@ package com.lambda.mixin.network;
 
 import com.lambda.client.event.LambdaEventBus;
 import com.lambda.client.event.events.PacketEvent;
-import com.lambda.client.module.modules.player.NoPacketKick;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -49,13 +48,4 @@ public class MixinNetworkManager {
         PacketEvent event = new PacketEvent.PostReceive(packet);
         LambdaEventBus.INSTANCE.post(event);
     }
-
-    @Inject(method = "exceptionCaught", at = @At("HEAD"), cancellable = true)
-    private void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
-        if (NoPacketKick.INSTANCE.isEnabled()) {
-            NoPacketKick.sendWarning(throwable);
-            ci.cancel();
-        }
-    }
-
 }

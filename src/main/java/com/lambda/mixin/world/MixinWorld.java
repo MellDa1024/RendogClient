@@ -1,6 +1,5 @@
 package com.lambda.mixin.world;
 
-import com.lambda.client.module.modules.misc.AntiWeather;
 import com.lambda.client.module.modules.render.NoRender;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -16,20 +15,6 @@ public class MixinWorld {
     private void checkLightForHead(EnumSkyBlock lightType, BlockPos pos, CallbackInfoReturnable<Boolean> ci) {
         if (NoRender.INSTANCE.handleLighting(lightType)) {
             ci.setReturnValue(false);
-        }
-    }
-
-    @Inject(method = "getThunderStrength", at = @At("HEAD"), cancellable = true)
-    private void getThunderStrengthHead(float delta, CallbackInfoReturnable<Float> cir) {
-        if (AntiWeather.INSTANCE.isEnabled()) {
-            cir.setReturnValue(0.0f);
-        }
-    }
-
-    @Inject(method = "getRainStrength", at = @At("HEAD"), cancellable = true)
-    private void getRainStrengthHead(float delta, CallbackInfoReturnable<Float> cir) {
-        if (AntiWeather.INSTANCE.isEnabled()) {
-            cir.setReturnValue(0.0f);
         }
     }
 }

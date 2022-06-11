@@ -76,14 +76,6 @@ abstract class ClientCommand(
     }
 
     @CommandBuilder
-    protected inline fun AbstractArg<*>.baritoneBlock(
-        name: String,
-        block: BuilderBlock<Block>
-    ) {
-        arg(BaritoneBlockArg(name), block)
-    }
-
-    @CommandBuilder
     protected inline fun AbstractArg<*>.schematic(
         name: String,
         file: BuilderBlock<File>

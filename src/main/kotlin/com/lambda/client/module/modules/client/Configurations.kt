@@ -19,12 +19,10 @@ import com.lambda.client.util.text.MessageSendHelper
 import com.lambda.client.util.text.formatValue
 import com.lambda.client.util.threads.BackgroundScope
 import com.lambda.client.util.threads.defaultScope
-import com.lambda.client.util.threads.safeListener
 import com.lambda.client.commons.interfaces.DisplayEnum
 import com.lambda.client.event.listener.listener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
@@ -42,7 +40,6 @@ internal object Configurations : AbstractModule(
     private val autoSaving by setting("Auto Saving", true)
     private val savingFeedBack by setting("Saving FeedBack", false, { autoSaving })
     private val savingInterval by setting("Interval", 10, 1..30, 1, { autoSaving }, description = "Frequency of auto saving in minutes")
-    val serverPreset by setting("Server Preset", false)
     private val guiPresetSetting = setting("Gui Preset", defaultPreset)
     private val modulePresetSetting = setting("Module Preset", defaultPreset)
 
@@ -63,20 +60,6 @@ internal object Configurations : AbstractModule(
 
         listener<ConnectionEvent.Connect> {
             connected = true
-        }
-
-        safeListener<TickEvent.ClientTickEvent> {
-            if (!connected) return@safeListener
-
-            val ip = mc.currentServerData?.serverIP ?: return@safeListener
-            connected = false
-
-            if (mc.isIntegratedServerRunning) return@safeListener
-
-            if (serverPreset) {
-                ConfigType.GUI.setServerPreset(ip)
-                ConfigType.MODULES.setServerPreset(ip)
-            }
         }
     }
 
@@ -255,53 +238,8 @@ internal object Configurations : AbstractModule(
             }
         }
 
-        fun newServerPreset(ip: String) {
-            if (!serverPresetDisabledMessage()) return
-
-            setPreset(convertIpToPresetName(ip))
-        }
-
-        fun setServerPreset(ip: String) {
-            if (!serverPresetDisabledMessage()) return
-
-            val presetName = convertIpToPresetName(ip)
-
-            if (serverPresets.contains(presetName)) {
-                MessageSendHelper.sendChatMessage("Changing preset to ${formatValue(presetName)} for ${formatValue(displayName)} config")
-                setPreset(presetName)
-            } else {
-                MessageSendHelper.sendChatMessage("No server preset found for ${formatValue(displayName)} config, using ${formatValue(defaultPreset)} preset...")
-                setPreset(defaultPreset)
-            }
-        }
-
-        fun deleteServerPreset(ip: String) {
-            deletePreset(convertIpToPresetName(ip))
-        }
-
-        fun printAllServerPreset() {
-            if (!serverPresetDisabledMessage()) return
-
-            if (serverPresets.isEmpty()) {
-                MessageSendHelper.sendChatMessage("No server preset for ${formatValue(displayName)} config!")
-            } else {
-                MessageSendHelper.sendChatMessage("List of server presets for ${formatValue(displayName)} config: ${formatValue(serverPresets.size)}")
-
-                serverPresets.forEach {
-                    val path = Paths.get("${config.filePath}/${it}.json").toAbsolutePath()
-                    MessageSendHelper.sendRawChatMessage(formatValue(path))
-                }
-            }
-        }
-
         private fun convertIpToPresetName(ip: String) = "server-" +
             ip.replace('.', '_').replace(':', '_')
 
-        private fun serverPresetDisabledMessage() = if (!serverPreset) {
-            MessageSendHelper.sendChatMessage("Server preset is not enabled, enable it in Configurations in ClickGUI")
-            false
-        } else {
-            true
-        }
     }
 }

@@ -1,7 +1,6 @@
 package com.lambda.client.command.commands
 
 import com.lambda.client.command.ClientCommand
-import com.lambda.client.event.SafeExecuteEvent
 import com.lambda.client.module.modules.client.Configurations
 import com.lambda.client.util.ConfigUtils
 import com.lambda.client.util.TickTimer
@@ -93,52 +92,9 @@ object ConfigCommand : ClientCommand(
                 }
             }
 
-            literal("server") {
-                literal("create", "new", "add") {
-                    executeSafe("Create a new server preset") {
-                        val ip = getIpOrNull() ?: return@executeSafe
-
-                        configTypeArg.value.newServerPreset(ip)
-                    }
-                }
-
-                literal("delete", "del", "remove") {
-                    executeSafe("Delete the current server preset") {
-                        val ip = getIpOrNull() ?: return@executeSafe
-                        val configType = configTypeArg.value
-
-                        if (!configType.serverPresets.contains(ip)) {
-                            MessageSendHelper.sendChatMessage("This server doesn't have a preset in config ${configType.displayName}")
-                            return@executeSafe
-                        }
-
-                        if (!confirm()) return@executeSafe
-
-                        configType.deleteServerPreset(ip)
-                    }
-                }
-
-                literal("list") {
-                    execute("List all available server presets") {
-                        configTypeArg.value.printAllServerPreset()
-                    }
-                }
-            }
-
             execute("Print current preset name") {
                 configTypeArg.value.printCurrentPreset()
             }
-        }
-    }
-
-    private fun SafeExecuteEvent.getIpOrNull(): String? {
-        val ip = mc.currentServerData?.serverIP
-
-        return if (ip == null || mc.isIntegratedServerRunning) {
-            MessageSendHelper.sendWarningMessage("You are not in a server!")
-            null
-        } else {
-            ip
         }
     }
 

@@ -1,6 +1,5 @@
 package com.lambda.client
 
-import com.lambda.client.plugin.PluginManager
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
 import org.apache.logging.log4j.LogManager
 import org.spongepowered.asm.launch.MixinBootstrap
@@ -32,16 +31,9 @@ class LambdaCoreMod : IFMLLoadingPlugin {
         val logger = LogManager.getLogger("Lambda")
 
         MixinBootstrap.init()
-        Mixins.addConfigurations("mixins.lambda.json", "mixins.baritone.json")
-
-        PluginManager.getLoaders()
-            .filter { it.info.mixins.isNotEmpty() }
-            .forEach {
-                logger.info("Initialised mixins of ${it.info.name}.")
-                Mixins.addConfigurations(*it.info.mixins)
-            }
+        Mixins.addConfigurations("mixins.lambda.json")
 
         MixinEnvironment.getDefaultEnvironment().obfuscationContext = "searge"
-        logger.info("Lambda and Baritone mixins initialised.")
+        logger.info("Lambda mixins initialised.")
     }
 }

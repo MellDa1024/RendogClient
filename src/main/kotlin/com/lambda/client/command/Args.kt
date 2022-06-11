@@ -94,28 +94,6 @@ class BlockArg(
     }
 }
 
-class BaritoneBlockArg(
-    override val name: String
-) : AbstractArg<Block>(), AutoComplete by StaticPrefixMatch(baritoneBlockNames) {
-
-    override suspend fun convertToType(string: String?): Block? {
-        if (string == null) return null
-        return Block.getBlockFromName(string)
-    }
-
-    private companion object {
-        val baritoneBlockNames = ArrayList<String>().apply {
-            BaritoneUtils.baritoneCachedBlocks.forEach { block ->
-                block.registryName?.let {
-                    add(it.toString())
-                    add(it.path)
-                }
-            }
-            sort()
-        }
-    }
-}
-
 class SchematicArg(
     override val name: String
 ) : AbstractArg<File>(), AutoComplete by DynamicPrefixMatch(::schematicFiles) {

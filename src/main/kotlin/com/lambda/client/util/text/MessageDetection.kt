@@ -1,7 +1,6 @@
 package com.lambda.client.util.text
 
 import com.lambda.client.command.CommandManager
-import com.lambda.client.util.BaritoneUtils
 import com.lambda.client.util.Wrapper
 
 object MessageDetection {
@@ -9,10 +8,6 @@ object MessageDetection {
         LAMBDA {
             override val prefixes: Array<out CharSequence>
                 get() = arrayOf(CommandManager.prefix)
-        },
-        BARITONE {
-            override val prefixes: Array<out CharSequence>
-                get() = arrayOf(BaritoneUtils.prefix, "${CommandManager.prefix}b", ".b")
         },
         ANY {
             override val prefixes: Array<out CharSequence>
@@ -77,7 +72,6 @@ object MessageDetection {
     }
 
     enum class Other(override vararg val regexes: Regex) : RegexDetector {
-        BARITONE("^\\[B(aritone)?]".toRegex()),
         TPA_REQUEST("^\\w+? (has requested|wants) to teleport to you\\.".toRegex())
     }
 }

@@ -1,7 +1,6 @@
 package com.lambda.client.event
 
 import com.lambda.client.command.CommandManager
-import com.lambda.client.event.events.BaritoneCommandEvent
 import com.lambda.client.event.events.ConnectionEvent
 import com.lambda.client.event.events.RenderWorldEvent
 import com.lambda.client.event.events.ResolutionUpdateEvent
@@ -83,10 +82,6 @@ internal object ForgeEventProcessor {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onChatSent(event: ClientChatEvent) {
-        MessageDetection.Command.BARITONE.removedOrNull(event.message)?.let {
-            LambdaEventBus.post(BaritoneCommandEvent(it.toString().substringBefore(' ').lowercase()))
-        }
-
         if (MessageDetection.Command.LAMBDA detect event.message) {
             CommandManager.runCommand(event.message.removePrefix(CommandManager.prefix))
             event.isCanceled = true

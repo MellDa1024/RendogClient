@@ -1,18 +1,15 @@
 package com.lambda.client.util.text
 
-import baritone.api.event.events.ChatEvent
 import com.lambda.client.LambdaMod
 import com.lambda.client.command.CommandManager
 import com.lambda.client.manager.managers.MessageManager
 import com.lambda.client.module.AbstractModule
-import com.lambda.client.util.BaritoneUtils
 import com.lambda.client.util.TaskState
 import com.lambda.client.util.Wrapper
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentBase
 import net.minecraft.util.text.TextComponentString
 import java.util.regex.Pattern
-import baritone.api.utils.Helper as BaritoneHelper
 
 object MessageSendHelper {
     private val mc = Wrapper.minecraft
@@ -38,23 +35,6 @@ object MessageSendHelper {
 
     fun sendLambdaCommand(command: String) {
         CommandManager.runCommand(command.removePrefix(CommandManager.prefix))
-    }
-
-    fun sendBaritoneMessage(message: String) {
-        BaritoneHelper.HELPER.logDirect(message)
-    }
-
-    fun sendBaritoneCommand(vararg args: String?) {
-        val chatControl = BaritoneUtils.settings?.chatControl
-        val prevValue = chatControl?.value
-        chatControl?.value = true
-
-        val event = ChatEvent(args.joinToString(" "))
-        BaritoneUtils.primary?.gameEventHandler?.onSendChatMessage(event)
-        if (!event.isCancelled && args[0] != "damn") { // don't remove the 'damn', it's critical code that will break everything if you remove it
-            sendBaritoneMessage("Invalid Command! Please view possible commands at https://github.com/cabaletta/baritone/blob/master/USAGE.md")
-        }
-        chatControl?.value = prevValue
     }
 
     fun sendRawChatMessage(message: String?) {

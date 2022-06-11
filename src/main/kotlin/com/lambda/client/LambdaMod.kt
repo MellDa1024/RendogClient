@@ -17,10 +17,10 @@ import java.io.File
 
 @Suppress("UNUSED_PARAMETER")
 @Mod(
-    modid = LambdaMod.ID,
-    name = LambdaMod.NAME,
-    version = LambdaMod.VERSION,
-    dependencies = LambdaMod.DEPENDENCIES
+    modid = com.lambda.client.LambdaMod.Companion.ID,
+    name = com.lambda.client.LambdaMod.Companion.NAME,
+    version = com.lambda.client.LambdaMod.Companion.VERSION,
+    dependencies = com.lambda.client.LambdaMod.Companion.DEPENDENCIES
 )
 class LambdaMod {
 
@@ -38,32 +38,32 @@ class LambdaMod {
         private const val MAIN_ORG = "lambda-client"
         const val PLUGIN_ORG = "lambda-plugins"
         private const val REPO_NAME = "lambda"
-        const val CAPES_JSON = "https://raw.githubusercontent.com/${MAIN_ORG}/cape-api/capes/capes.json"
-        const val RELEASES_API = "${GITHUB_API}repos/${MAIN_ORG}/${REPO_NAME}/releases"
-        const val DOWNLOAD_LINK = "https://github.com/${MAIN_ORG}/${REPO_NAME}/releases"
-        const val GITHUB_LINK = "https://github.com/$MAIN_ORG/"
+        const val CAPES_JSON = "https://raw.githubusercontent.com/${com.lambda.client.LambdaMod.Companion.MAIN_ORG}/cape-api/capes/capes.json"
+        const val RELEASES_API = "${com.lambda.client.LambdaMod.Companion.GITHUB_API}repos/${com.lambda.client.LambdaMod.Companion.MAIN_ORG}/${com.lambda.client.LambdaMod.Companion.REPO_NAME}/releases"
+        const val DOWNLOAD_LINK = "https://github.com/${com.lambda.client.LambdaMod.Companion.MAIN_ORG}/${com.lambda.client.LambdaMod.Companion.REPO_NAME}/releases"
+        const val GITHUB_LINK = "https://github.com/${com.lambda.client.LambdaMod.Companion.MAIN_ORG}/"
         const val DISCORD_INVITE = "https://discord.gg/QjfBxJzE5x"
 
         const val LAMBDA = "λ"
 
-        val LOG: Logger = LogManager.getLogger(NAME)
+        val LOG: Logger = LogManager.getLogger(com.lambda.client.LambdaMod.Companion.NAME)
 
         var ready: Boolean = false; private set
     }
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        val directory = File(DIRECTORY)
+        val directory = File(com.lambda.client.LambdaMod.Companion.DIRECTORY)
         if (!directory.exists()) directory.mkdir()
 
-        LoaderWrapper.preLoadAll()
+        com.lambda.client.LoaderWrapper.preLoadAll()
     }
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
-        LOG.info("Initializing $NAME $VERSION")
+        com.lambda.client.LambdaMod.Companion.LOG.info("Initializing ${com.lambda.client.LambdaMod.Companion.NAME} ${com.lambda.client.LambdaMod.Companion.VERSION}")
 
-        LoaderWrapper.loadAll()
+        com.lambda.client.LoaderWrapper.loadAll()
 
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
 
@@ -73,15 +73,14 @@ class LambdaMod {
         BackgroundScope.start()
 
         WebUtils.updateCheck()
-        LambdaClickGui.populateRemotePlugins()
 
         KamiCheck.runCheck()
 
-        LOG.info("$NAME initialized!")
+        com.lambda.client.LambdaMod.Companion.LOG.info("${com.lambda.client.LambdaMod.Companion.NAME} initialized!")
     }
 
     @Mod.EventHandler
     fun postInit(event: FMLPostInitializationEvent) {
-        ready = true
+        com.lambda.client.LambdaMod.Companion.ready = true
     }
 }

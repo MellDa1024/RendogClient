@@ -3,7 +3,6 @@ package com.lambda.mixin.render;
 import com.lambda.client.event.LambdaEventBus;
 import com.lambda.client.event.events.BlockBreakEvent;
 import com.lambda.client.event.events.RenderEntityEvent;
-import com.lambda.client.module.modules.player.Freecam;
 import com.lambda.client.module.modules.render.SelectionHighlight;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.ICamera;
@@ -14,7 +13,6 @@ import net.minecraft.util.math.RayTraceResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RenderGlobal.class)
@@ -40,14 +38,5 @@ public abstract class MixinRenderGlobal {
     @Inject(method = "renderEntities", at = @At("RETURN"))
     public void renderEntitiesReturn(Entity renderViewEntity, ICamera camera, float partialTicks, CallbackInfo ci) {
         RenderEntityEvent.setRenderingEntities(false);
-    }
-
-    @ModifyVariable(method = "setupTerrain", at = @At(value = "STORE", ordinal = 0), ordinal = 1)
-    public BlockPos setupTerrainStoreFlooredChunkPosition(BlockPos playerPos) {
-        if (Freecam.INSTANCE.isEnabled()) {
-            playerPos = Freecam.getRenderChunkOffset(playerPos);
-        }
-
-        return playerPos;
     }
 }
