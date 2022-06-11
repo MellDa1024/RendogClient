@@ -25,7 +25,7 @@ class LambdaMod {
 
     companion object {
         const val NAME = "RendogClient"
-        const val ID = "RendogClient"
+        const val ID = "rendogclient"
         const val DIRECTORY = "RendogClient/"
 
         const val VERSION = "b1"
