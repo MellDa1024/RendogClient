@@ -34,7 +34,7 @@ internal object InventoryViewer : HudElement(
     private val background by setting("Background", true, { !mcTexture })
     private val alpha by setting("Alpha", 150, 0..255, 1, { !mcTexture })
     private val containerTexture = ResourceLocation("textures/gui/container/inventory.png")
-    private val lambdaIcon = ResourceLocation("lambda/lambda_icon.png")
+    private val lambdaIcon = ResourceLocation("rendog/rendog_icon.png")
     private var enderChestContents: MutableList<ItemStack> = MutableList(27) { ItemStack(Blocks.AIR) }
 
     override val hudWidth: Float = 162.0f

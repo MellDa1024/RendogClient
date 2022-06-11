@@ -6,10 +6,10 @@ import com.rendog.client.util.FolderUtils
 object OpenFolderCommand : ClientCommand(
     name = "openfolder",
     alias = arrayOf("of", "open"),
-    description = "Open any Lambda folder"
+    description = "Open any Rendog folder"
 ) {
     init {
-        literal("lambda") {
+        literal("rendog") {
             execute {
                 FolderUtils.openFolder(FolderUtils.rendogFolder)
             }
