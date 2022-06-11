@@ -3,12 +3,17 @@ package com.rendog.client.gui.hudgui.elements.misc
 import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.util.TimeUtils
+import com.rendog.client.util.graphics.font.HAlign
 
 internal object Time : LabelHud(
     name = "Time",
     category = Category.MISC,
     description = "System date and time"
 ) {
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     private val showDate = setting("Show Date", true)
     private val showTime = setting("Show Time", true)

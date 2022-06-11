@@ -40,7 +40,7 @@ object GuideCommand : ClientCommand(
 
     private fun listGuides() {
         if (GuideManager.empty) {
-            MessageSendHelper.sendChatMessage("You currently don't have any guides added. run &7${prefix}guide add <name>&r to add one.")
+            MessageSendHelper.sendWarningMessage("There isn't any guide on your guide list. maybe there are some problem with Guide Database.")
         } else {
             val f = GuideManager.guides.values.joinToString(prefix = "\n    ", separator = "\n    ") { it.name } // nicely format the chat output
             MessageSendHelper.sendChatMessage("Guide list: $f")

@@ -7,6 +7,7 @@ import com.rendog.client.module.modules.client.GuiColors
 import com.rendog.client.util.graphics.GlStateUtils
 import com.rendog.client.util.graphics.RenderUtils2D
 import com.rendog.client.util.graphics.VertexHelper
+import com.rendog.client.util.graphics.font.HAlign
 import com.rendog.client.util.math.Vec2d
 import com.rendog.client.util.text.MessageSendHelper
 import com.rendog.client.util.threads.runSafe
@@ -30,7 +31,7 @@ import kotlin.math.roundToInt
 internal object RPGCoolDown : HudElement(
     name = "RPGCoolDown",
     category = Category.COMBAT,
-    description = "Show Weapon's Cooldown"
+    description = "Show Weapon's Cooldown",
 ) {
     private val method by setting("Method", Method.Both, description = "What kind of method to manage cooldown.\nClick Method Info for more information.")
 
@@ -51,6 +52,12 @@ internal object RPGCoolDown : HudElement(
     private var rightclickchat = ""
     private var leftclickchat = ""
     private val cdpattern = Pattern.compile(" {3}\\[ RD ] {3}재사용 대기시간이 ([0-9.]*)초 남았습니다.")
+
+    init {
+        relativePosX = 0.0f
+        relativePosY = 0.0f
+        dockingH = HAlign.CENTER
+    }
 
     init {
         safeListener<TickEvent.ClientTickEvent> {

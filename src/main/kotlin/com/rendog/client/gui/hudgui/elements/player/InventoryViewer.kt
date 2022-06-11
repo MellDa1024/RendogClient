@@ -7,6 +7,7 @@ import com.rendog.client.module.modules.client.GuiColors
 import com.rendog.client.util.graphics.GlStateUtils
 import com.rendog.client.util.graphics.RenderUtils2D
 import com.rendog.client.util.graphics.VertexHelper
+import com.rendog.client.util.graphics.font.HAlign
 import com.rendog.client.util.items.storageSlots
 import com.rendog.client.util.math.Vec2d
 import com.rendog.client.util.threads.runSafe
@@ -39,6 +40,10 @@ internal object InventoryViewer : HudElement(
 
     override val hudWidth: Float = 162.0f
     override val hudHeight: Float = 54.0f
+
+    init {
+        dockingH = HAlign.CENTER
+    }
 
     override fun renderHud(vertexHelper: VertexHelper) {
         super.renderHud(vertexHelper)

@@ -28,7 +28,7 @@ internal object WaterMark : LabelHud(
     }
 
     init {
-        posX = 0.0f
-        posY = 0.0f
+        relativePosX = 0.0f
+        relativePosY = 0.0f
     }
 }

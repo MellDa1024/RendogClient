@@ -4,6 +4,7 @@ import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.util.CircularArray
 import com.rendog.client.util.graphics.AnimationUtils
+import com.rendog.client.util.graphics.font.HAlign
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -26,6 +27,10 @@ internal object FPS : LabelHud(
 
     private var prevAvgFps = 0
     private var currentAvgFps = 0
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     @JvmStatic
     fun updateFps(fps: Int) {

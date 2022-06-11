@@ -4,12 +4,17 @@ import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.util.math.RotationUtils
 import com.rendog.client.commons.utils.MathUtils
+import com.rendog.client.util.graphics.font.HAlign
 
 internal object Rotation : LabelHud(
     name = "Rotation",
     category = Category.PLAYER,
     description = "Player rotation"
 ) {
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     override fun SafeClientEvent.updateText() {
         val yaw = MathUtils.round(RotationUtils.normalizeAngle(mc.player?.rotationYaw ?: 0.0f), 1)

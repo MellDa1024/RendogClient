@@ -6,6 +6,7 @@ import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.util.TickTimer
 import com.rendog.client.util.graphics.AnimationUtils
 import com.rendog.client.event.listener.listener
+import com.rendog.client.util.graphics.font.HAlign
 import net.minecraftforge.fml.common.gameevent.InputEvent
 import org.lwjgl.input.Mouse
 
@@ -21,6 +22,10 @@ internal object CPS : LabelHud(
     private val clicks = ArrayDeque<Long>()
     private var currentCps = 0.0f
     private var prevCps = 0.0f
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     init {
         listener<InputEvent.MouseInputEvent> {

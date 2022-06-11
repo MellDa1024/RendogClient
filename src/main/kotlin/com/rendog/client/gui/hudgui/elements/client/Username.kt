@@ -6,7 +6,8 @@ import com.rendog.client.gui.hudgui.LabelHud
 internal object Username : LabelHud(
     name = "Username",
     category = Category.CLIENT,
-    description = "Player username"
+    description = "Player username",
+    enabledByDefault = true
 ) {
 
     private val prefix = setting("Prefix", "Welcome")
@@ -17,5 +18,8 @@ internal object Username : LabelHud(
         displayText.add(mc.session.username, secondaryColor)
         if (suffix.value != "") displayText.add(suffix.value, primaryColor)
     }
-
+    init {
+        relativePosX = 0.0f
+        relativePosY = 10.0f
+    }
 }

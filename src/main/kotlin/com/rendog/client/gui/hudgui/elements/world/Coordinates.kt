@@ -2,6 +2,7 @@ package com.rendog.client.gui.hudgui.elements.world
 
 import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.gui.hudgui.LabelHud
+import com.rendog.client.util.graphics.font.HAlign
 import com.rendog.client.util.graphics.font.TextComponent
 import com.rendog.client.util.math.VectorUtils.times
 import net.minecraft.util.math.Vec3d
@@ -12,34 +13,22 @@ internal object Coordinates : LabelHud(
     description = "Display the current coordinate"
 ) {
 
+    init {
+        dockingH = HAlign.RIGHT
+    }
+
     private val showX by setting("Show X", true)
     private val showY by setting("Show Y", true)
     private val showZ by setting("Show Z", true)
-    private val showNetherOverworld by setting("Show Nether/Overworld", true)
+
     private val decimalPlaces by setting("Decimal Places", 1, 0..4, 1)
     private val thousandsSeparator by setting("Thousands Separator", false)
-
-    private val netherToOverworld = Vec3d(8.0, 1.0, 8.0)
-    private val overworldToNether = Vec3d(0.125, 1.0, 0.125)
 
     override fun SafeClientEvent.updateText() {
         val entity = mc.renderViewEntity ?: player
 
         displayText.add("XYZ", secondaryColor)
         displayText.addLine(getFormattedCoords(entity.positionVector))
-
-        if (showNetherOverworld) {
-            when (entity.dimension) {
-                -1 -> { // Nether
-                    displayText.add("Overworld", secondaryColor)
-                    displayText.addLine(getFormattedCoords(entity.positionVector * netherToOverworld))
-                }
-                0 -> { // Overworld
-                    displayText.add("Nether", secondaryColor)
-                    displayText.addLine(getFormattedCoords(entity.positionVector * overworldToNether))
-                }
-            }
-        }
     }
 
     private fun getFormattedCoords(pos: Vec3d): TextComponent.TextElement {

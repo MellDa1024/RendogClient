@@ -3,6 +3,7 @@ package com.rendog.client.gui.hudgui.elements.world
 import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.commons.interfaces.DisplayEnum
+import com.rendog.client.util.graphics.font.HAlign
 import org.apache.commons.lang3.time.DurationFormatUtils
 
 internal object WorldTime : LabelHud(
@@ -10,6 +11,10 @@ internal object WorldTime : LabelHud(
     category = Category.WORLD,
     description = "Time in the Minecraft world"
 ) {
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     private val displayMode by setting("Display Mode", DisplayMode.H24)
     private val fromMidNight by setting("From Midnight", true, { displayMode == DisplayMode.REAL_TIME || displayMode == DisplayMode.TICKS })

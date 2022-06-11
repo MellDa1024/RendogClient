@@ -5,6 +5,7 @@ import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.util.InfoCalculator.speed
 import com.rendog.client.commons.interfaces.DisplayEnum
 import com.rendog.client.commons.utils.MathUtils
+import com.rendog.client.util.graphics.font.HAlign
 import java.util.*
 
 internal object PlayerSpeed : LabelHud(
@@ -12,9 +13,12 @@ internal object PlayerSpeed : LabelHud(
     category = Category.PLAYER,
     description = "Player movement speed"
 ) {
-
     private val speedUnit by setting("Speed Unit", SpeedUnit.MPS)
     private val averageSpeedTime by setting("Average Speed Ticks", 10, 1..50, 1)
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     @Suppress("UNUSED")
     private enum class SpeedUnit(override val displayName: String, val multiplier: Double) : DisplayEnum {

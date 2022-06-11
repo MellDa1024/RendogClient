@@ -32,7 +32,7 @@ abstract class AbstractHudElement(
 ) : BasicWindow(name, 20.0f, 20.0f, 100.0f, 50.0f, SettingGroup.HUD_GUI, config), Alias {
 
     val bind by setting("Bind", Bind())
-    val scale by setting("Scale", 1.0f, 0.1f..4.0f, 0.05f)
+    var scale by setting("Scale", 1.0f, 0.1f..4.0f, 0.05f)
     val default = setting("Default", false)
 
     override val resizable = false

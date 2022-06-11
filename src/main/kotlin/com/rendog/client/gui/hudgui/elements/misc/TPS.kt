@@ -5,12 +5,17 @@ import com.rendog.client.gui.hudgui.LabelHud
 import com.rendog.client.util.CircularArray
 import com.rendog.client.util.CircularArray.Companion.average
 import com.rendog.client.util.TpsCalculator
+import com.rendog.client.util.graphics.font.HAlign
 
 internal object TPS : LabelHud(
     name = "TPS",
     category = Category.MISC,
     description = "Server TPS"
 ) {
+
+    init {
+        dockingH = HAlign.RIGHT
+    }
 
     private val tickLength by setting("Tick Length", false, description = "Display tick length in millisseconds instead")
 
