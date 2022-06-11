@@ -13,28 +13,31 @@ RendogClient의 경우 기존 Lambda 클라이언트에서 흔히 "핵"이라고
 ## 설치 방법
 1. Minecraft 1.12.2 버전을 설치합니다.
 2. Forge(버전 : 2860)을 설치합니다.
-3. 모드를 [여기서](https://github.com/lambda-client/lambda/releases/download/3.1/lambda-3.1.jar) 다운받습니다.
+3. 모드를 [여기서](https://github.com/MellDa1024/RendogClient/releases) 다운받습니다.
 4. 모드 파일을 `.minecraft/mods` 으로 옮깁니다.
+
+## 알려진 버그들
+> Creo의 KoreanChat 사용 시 RendogClient의 명령어 UI가 보이지 않고, 실행한 명령어가 과거 채팅 기록에 나오지 않는 현상
 
 ## FAQ
 
 <details>
   <summary>ClickGUI를 여는 법</summary>
 
-> `Y`를 누르세요
+> `Y`를 누르세요.
 
 </details>
 
 <details>
   <summary>명령어를 실행시키는 방법</summary>
 
-> 인게임 쳇에서 `;help commands`를 입력해보세요
+> 인게임 쳇에서 `;help commands`를 입력해보세요.
 
 </details>
 
 <details>
   <summary>ClickGui의 크기를 초기화 하는 법</summary>
 
->  `;set clickgui scale 100`를 입력해보세요
+>  `;set clickgui scale 100`를 입력해보세요.
 
 </details>
