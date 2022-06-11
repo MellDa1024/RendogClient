@@ -7,7 +7,7 @@ import com.rendog.client.util.text.MessageSendHelper
 object GuideCommand : ClientCommand(
     name = "guide",
     alias = arrayOf("g"),
-    description = "Add someone in guide list!"
+    description = "Settings for guide list"
 ) {
 
     private var confirmTime = 0L
