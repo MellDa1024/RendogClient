@@ -2,7 +2,7 @@ package com.rendog.client
 
 import com.rendog.client.event.ForgeEventProcessor
 import com.rendog.client.util.ConfigUtils
-import com.rendog.client.util.WebUtils
+//import com.rendog.client.util.WebUtils
 import com.rendog.client.util.threads.BackgroundScope
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
