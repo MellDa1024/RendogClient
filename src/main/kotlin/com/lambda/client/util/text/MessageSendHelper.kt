@@ -76,6 +76,6 @@ object MessageSendHelper {
         }
     }
 
-    private fun coloredName(colorCode: Char) = "&7[&$colorCode" + LambdaMod.LAMBDA + "&7] &r"
+    private fun coloredName(colorCode: Char) = "&7[&$colorCode" + LambdaMod.RENDOG + "&7] &r"
 
 }

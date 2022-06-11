@@ -1,7 +1,6 @@
 package com.lambda.client
 
 import com.lambda.client.event.ForgeEventProcessor
-import com.lambda.client.gui.clickgui.LambdaClickGui
 import com.lambda.client.util.ConfigUtils
 import com.lambda.client.util.KamiCheck
 import com.lambda.client.util.WebUtils
@@ -25,26 +24,21 @@ import java.io.File
 class LambdaMod {
 
     companion object {
-        const val NAME = "Lambda"
-        const val ID = "lambda"
-        const val DIRECTORY = "lambda/"
+        const val NAME = "RendogClient"
+        const val ID = "RendogClient"
+        const val DIRECTORY = "RendogClient/"
 
-        const val VERSION = "3.1"
+        const val VERSION = "b1"
 
-        const val APP_ID = 835368493150502923 // DiscordIPC
         const val DEPENDENCIES = "required-after:forge@[14.23.5.2860,);"
 
         const val GITHUB_API = "https://api.github.com/"
-        private const val MAIN_ORG = "lambda-client"
-        const val PLUGIN_ORG = "lambda-plugins"
-        private const val REPO_NAME = "lambda"
-        const val CAPES_JSON = "https://raw.githubusercontent.com/${MAIN_ORG}/cape-api/capes/capes.json"
+        private const val MAIN_ORG = "MellDa1024"
+        private const val REPO_NAME = "RendogClient"
         const val RELEASES_API = "${GITHUB_API}repos/${MAIN_ORG}/${REPO_NAME}/releases"
         const val DOWNLOAD_LINK = "https://github.com/${MAIN_ORG}/${REPO_NAME}/releases"
-        const val GITHUB_LINK = "https://github.com/$MAIN_ORG/"
-        const val DISCORD_INVITE = "https://discord.gg/QjfBxJzE5x"
 
-        const val LAMBDA = "λ"
+        const val RENDOG = "ℜ"
 
         val LOG: Logger = LogManager.getLogger(NAME)
 
