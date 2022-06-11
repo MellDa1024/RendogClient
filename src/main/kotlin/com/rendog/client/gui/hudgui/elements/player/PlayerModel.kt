@@ -7,7 +7,6 @@ import com.rendog.client.util.graphics.VertexHelper
 import com.rendog.client.util.threads.runSafe
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.math.MathHelper
 import org.lwjgl.opengl.GL11.*
 
