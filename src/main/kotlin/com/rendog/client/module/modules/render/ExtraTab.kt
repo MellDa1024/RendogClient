@@ -1,5 +1,6 @@
 package com.rendog.client.module.modules.render
 
+import com.rendog.client.RendogMod
 import com.rendog.client.manager.managers.FriendManager
 import com.rendog.client.manager.managers.GuideManager
 import com.rendog.client.module.Category
@@ -25,14 +26,23 @@ object ExtraTab : Module(
         val name = info.displayName?.formattedText
             ?: ScorePlayerTeam.formatPlayerName(info.playerTeam, info.gameProfile.name)
 
-        return if (GuideManager.isGuide(name.trim())) {
-            guidecolor format name
+        return if (GuideManager.isGuide(removecolorcode(name))) {
+            guidecolor format removecolorcode(name)
         }
-        else if (FriendManager.isFriend(name.trim())) {
-            friendcolor format name
+        else if (FriendManager.isFriend(removecolorcode(name))) {
+            friendcolor format removecolorcode(name)
         } else {
             name
         }
+    }
+
+    fun removecolorcode(message: String): String {
+        val colorcode = arrayOf("§0","§1","§2","§3","§4","§5","§6","§7","§8","§9","§a","§b","§c","§d","§e","§f","§k","§l","§m","§n","§o","§r")
+        var temp = message
+        for (i in colorcode) {
+            temp = temp.replace(i,"")
+        }
+        return temp
     }
 
     @JvmStatic
