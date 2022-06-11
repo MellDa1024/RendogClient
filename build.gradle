@@ -47,7 +47,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
 
-            property 'fml.coreMods.load', 'com.lambda.client.LambdaCoreMod'
+            property 'fml.coreMods.load', 'com.rendog.client.LambdaCoreMod'
             property 'mixin.env.disableRefMap', 'true' // Disable refmap so we don't get trolled by Baritone
 
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -165,7 +165,7 @@ jar {
             'MixinConfigs': 'mixins.lambda.json',
             'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
             'FMLCorePluginContainsFMLMod': 'true',
-            'FMLCorePlugin': 'com.lambda.client.LambdaCoreMod',
+            'FMLCorePlugin': 'com.rendog.client.LambdaCoreMod',
             'ForceLoadAsMod': 'true'
     )
 
