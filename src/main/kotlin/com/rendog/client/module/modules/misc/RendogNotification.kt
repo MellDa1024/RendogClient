@@ -48,7 +48,10 @@ internal object RendogNotification : Module(
     init{
         onEnable {
             try {
-                if (!GuideManager.isGuide(mc.session.username)) disable()
+                if (!GuideManager.isGuide(mc.session.username)) {
+                    MessageSendHelper.sendWarningMessage("$chatName This Module is only for guide.")
+                    disable()
+                }
                 else if (!SystemTray.isSupported()) {
                     MessageSendHelper.sendErrorMessage("$chatName Toast System Not supported, Toast Notification will be disabled.")
                     whispertoast = false
