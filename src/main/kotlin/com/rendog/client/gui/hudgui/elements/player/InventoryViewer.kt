@@ -42,6 +42,8 @@ internal object InventoryViewer : HudElement(
     override val hudHeight: Float = 54.0f
 
     init {
+        relativePosX = 0.0f
+        relativePosY = 0.0f
         dockingH = HAlign.CENTER
     }
 
