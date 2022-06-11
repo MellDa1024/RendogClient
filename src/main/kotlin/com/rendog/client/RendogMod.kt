@@ -64,7 +64,7 @@ class RendogMod {
 
         BackgroundScope.start()
 
-        WebUtils.updateCheck()
+        //WebUtils.updateCheck() not now
 
         LOG.info("$NAME initialized!")
     }
