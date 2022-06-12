@@ -128,7 +128,7 @@ internal object RPGCoolDown : HudElement(
                 if (method == Method.Both) chatdetectupdate(true, player.inventory.getCurrentItem().displayName)
                 if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isableinvillage(player.inventory.getCurrentItem().displayName))) { //village
                     if ((itemcd[player.inventory.getCurrentItem().displayName]!!.second - currentTimeMillis()) <= 0) {
-                        itemcd[player.inventory.getCurrentItem().displayName]!!.second = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName))
+                        itemcd[player.inventory.getCurrentItem().displayName]!!.second = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName)).toLong()
                     }
                 }
 
@@ -152,7 +152,7 @@ internal object RPGCoolDown : HudElement(
                 if (method == Method.Both) chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
                 if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isableinvillage(player.inventory.getCurrentItem().displayName))) { //village
                     if ((itemcd[player.inventory.getCurrentItem().displayName]!!.first - currentTimeMillis()) <= 0) {
-                        itemcd[player.inventory.getCurrentItem().displayName]!!.first = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName, false))
+                        itemcd[player.inventory.getCurrentItem().displayName]!!.first = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName, false)).toLong()
                     }
                 }
 

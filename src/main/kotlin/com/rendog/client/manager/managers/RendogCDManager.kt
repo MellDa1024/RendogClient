@@ -14,31 +14,40 @@ object RendogCDManager : Manager {
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
-    private var cooldown = mutableMapOf("" to Pair(0,0))
+    private var cooldown = mutableMapOf("" to Pair(0.0,0.0))
     private lateinit var cooldowndata: WeaponDataList
     private val ableinvillage = mutableListOf("")
     private var enabled = false
 
-    private val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponData.json"
+    private val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponDataV2.json"
 
-    fun getCD(item : String, rightclick : Boolean = true): Int {
+    fun indatabase(item : String) : Boolean {
+        if (enabled) {
+            return cooldown.containsKey(removecolorcode(item).trim())
+        } else {
+            MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
+            return false
+        }
+    }
+
+    fun getCD(item : String, rightclick : Boolean = true): Double {
         if (enabled) {
             if (rightclick) {
                 if (cooldown.containsKey(removecolorcode(item))) {
                     return cooldown[removecolorcode(item)]!!.second
                 } else {
-                    return 0
+                    return 0.0
                 }
             } else {
                 if (cooldown.containsKey(removecolorcode(item))) {
                     return cooldown[removecolorcode(item)]!!.first
                 } else {
-                    return 0
+                    return 0.0
                 }
             }
         } else {
             MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
-            return 0
+            return 0.0
         }
     }
 
@@ -56,30 +65,57 @@ object RendogCDManager : Manager {
     }
 
     fun loadCoolDownData(): Boolean {
-        return try {
+        try {
             val rawJson = ConnectionUtils.requestRawJsonFrom(url)
             cooldowndata = gson.fromJson(rawJson, object : TypeToken<WeaponDataList>() {}.type)
             cooldown.clear()
             ableinvillage.clear()
-            for (i in cooldowndata.weaponlist) {
-                cooldown[i.weaponname] = Pair(i.leftcd, i.rightcd)
-                if (i.invillage) {
-                    ableinvillage.add(i.weaponname)
+            if (cooldowndata.version != RendogMod.VERSION.replace("GuideOnly","")) {
+                RendogMod.LOG.warn("CoolDownData needs RendogClient version ${cooldowndata.version} and your version is in ${RendogMod.VERSION}, The RendogClient Needs Update.")
+                RendogMod.LOG.warn("Update your RendogClient to new version.")
+                return false
+            }
+            else {
+                for (i in cooldowndata.weaponlist) {
+                    if (i.maxlevel == 1) {
+                        cooldown[i.weaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                    } else if (i.weaponname.contains("< 초월 >")) {
+                        val modifiedweaponname = i.weaponname + "[ MAX ]"
+                        cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                    } else {
+                        var modifiedweaponname: String
+                        for (j in 0 until i.maxlevel) {
+                            if (i.maxlevel-1 != j) {
+                                modifiedweaponname = i.weaponname + " [ +${j+1} ]"
+                            } else {
+                                modifiedweaponname = i.weaponname + " [ MAX ]"
+                            }
+                            if (!i.changebylevel) {
+                                cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                            } else {
+                                cooldown[modifiedweaponname] = Pair(i.leftcd[j], i.rightcd[j])
+                            }
+                        }
+                    }
+                    if (i.invillage) {
+                        ableinvillage.add(i.weaponname)
+                    }
                 }
             }
             enabled = cooldowndata.enabled
-            RendogMod.LOG.info("CoolDown Data loaded")
-            true
+            RendogMod.LOG.info("CoolDown Data loaded.")
+            return true
         } catch (e: Exception) {
             RendogMod.LOG.warn("Failed loading CoolDownData : ", e)
-            false
+            return false
         }
     }
 
     data class WeaponDataList(
         @SerializedName("Enabled")
         var enabled: Boolean = true,
-
+        @SerializedName("VersionRequires")
+        val version: String,
         @SerializedName("WeaponList")
         val weaponlist: LinkedHashSet<WeaponData>
     )
@@ -87,11 +123,41 @@ object RendogCDManager : Manager {
     data class WeaponData(
         @SerializedName("WeaponName")
         val weaponname : String,
-        @SerializedName("RightCoolDown")
-        val rightcd : Int,
+        @SerializedName("maxlevel")
+        val maxlevel : Int,
+        @SerializedName("changebylevel")
+        val changebylevel : Boolean,
         @SerializedName("LeftCoolDown")
-        val leftcd : Int,
+        val leftcd : Array<Double>,
+        @SerializedName("RightCoolDown")
+        val rightcd : Array<Double>,
         @SerializedName("InVillage")
         val invillage : Boolean
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as WeaponData
+
+            if (weaponname != other.weaponname) return false
+            if (maxlevel != other.maxlevel) return false
+            if (changebylevel != other.changebylevel) return false
+            if (!leftcd.contentEquals(other.leftcd)) return false
+            if (!rightcd.contentEquals(other.rightcd)) return false
+            if (invillage != other.invillage) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = weaponname.hashCode()
+            result = 31 * result + maxlevel
+            result = 31 * result + changebylevel.hashCode()
+            result = 31 * result + leftcd.contentHashCode()
+            result = 31 * result + rightcd.contentHashCode()
+            result = 31 * result + invillage.hashCode()
+            return result
+        }
+    }
 }
