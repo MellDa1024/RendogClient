@@ -22,7 +22,7 @@ object RendogCDCommand : ClientCommand(
                         MessageSendHelper.sendErrorMessage("Failed to load Cooldown data, see Minecraft's log for more information.")
                     }
                 } else {
-                    val cooldown = ((lastreloadtime - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
+                    val cooldown = ((currentTimeMillis()- lastreloadtime).toDouble()/100.0).roundToInt()/10.0
                     MessageSendHelper.sendWarningMessage("Reload Command can be execute with 10 seconds delay. You have $cooldown sec left.")
                 }
             }

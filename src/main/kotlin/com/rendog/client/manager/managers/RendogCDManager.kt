@@ -98,10 +98,10 @@ object RendogCDManager : Manager {
                     } else {
                         var modifiedweaponname: String
                         for (j in 0 until i.maxlevel) {
-                            if (i.maxlevel-1 != j) {
-                                modifiedweaponname = i.weaponname + " [ +${j+1} ]"
+                            modifiedweaponname = if (i.maxlevel-1 != j) {
+                                i.weaponname + " [ +${j+1} ]"
                             } else {
-                                modifiedweaponname = i.weaponname + " [ MAX ]"
+                                i.weaponname + " [ MAX ]"
                             }
                             if (!i.changebylevel) {
                                 cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
