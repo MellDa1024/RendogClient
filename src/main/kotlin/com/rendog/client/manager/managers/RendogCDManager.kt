@@ -80,12 +80,21 @@ object RendogCDManager : Manager {
                     if (i.maxlevel == -1) {
                         val modifiedweaponname = i.weaponname + " [ SPECIAL ]"
                         cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                        if (i.invillage) {
+                            ableinvillage.add(modifiedweaponname)
+                        }
                     }
                     else if (i.maxlevel == 1) {
                         cooldown[i.weaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                        if (i.invillage) {
+                            ableinvillage.add(i.weaponname)
+                        }
                     } else if (i.weaponname.contains("< 초월 >")) {
                         val modifiedweaponname = i.weaponname + " [ MAX ]"
                         cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                        if (i.invillage) {
+                            ableinvillage.add(modifiedweaponname)
+                        }
                     } else {
                         var modifiedweaponname: String
                         for (j in 0 until i.maxlevel) {
@@ -99,10 +108,10 @@ object RendogCDManager : Manager {
                             } else {
                                 cooldown[modifiedweaponname] = Pair(i.leftcd[j], i.rightcd[j])
                             }
+                            if (i.invillage) {
+                                ableinvillage.add(modifiedweaponname)
+                            }
                         }
-                    }
-                    if (i.invillage) {
-                        ableinvillage.add(i.weaponname)
                     }
                 }
             }
