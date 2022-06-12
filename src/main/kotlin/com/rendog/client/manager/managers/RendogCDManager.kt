@@ -77,10 +77,14 @@ object RendogCDManager : Manager {
             }
             else {
                 for (i in cooldowndata.weaponlist) {
-                    if (i.maxlevel == 1) {
+                    if (i.maxlevel == -1) {
+                        val modifiedweaponname = i.weaponname + " [ SPECIAL ]"
+                        cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
+                    }
+                    else if (i.maxlevel == 1) {
                         cooldown[i.weaponname] = Pair(i.leftcd[0], i.rightcd[0])
                     } else if (i.weaponname.contains("< 초월 >")) {
-                        val modifiedweaponname = i.weaponname + "[ MAX ]"
+                        val modifiedweaponname = i.weaponname + " [ MAX ]"
                         cooldown[modifiedweaponname] = Pair(i.leftcd[0], i.rightcd[0])
                     } else {
                         var modifiedweaponname: String
