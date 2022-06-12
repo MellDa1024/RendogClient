@@ -12,7 +12,7 @@ RendogClient의 경우 기존 Lambda 클라이언트에서 흔히 "핵"이라고
 ## 도움!
 무기의 쿨타임 데이터를 수집해야 합니다. 자세한 내용은 [여기](https://github.com/MellDa1024/RendogDataBase) 를 참고해주세요.
 
-## 설치 방법 & 사용 방법
+## 설치 방법 & 사용 방법(이미지 클릭)
 [![Video Label](http://img.youtube.com/vi/oW7Ijb_XhO4/maxresdefault.jpg)](https://youtu.be/oW7Ijb_XhO4?t=0s)
 
 ## 설치 방법
