@@ -51,6 +51,7 @@ internal object RPGCoolDown : HudElement(
     private var firstopen = true
     private var rightclickchat = ""
     private var leftclickchat = ""
+    private var moonlightname = ""
     private val cdpattern = Pattern.compile(" {3}\\[ RD ] {3}재사용 대기시간이 ([0-9.]*)초 남았습니다.")
 
     init {
@@ -81,6 +82,14 @@ internal object RPGCoolDown : HudElement(
                 MessageSendHelper.sendWarningMessage("§6§lDataBase :§r brings CoolDown data from plugin's Database.\nThe item which isn't in a database will be ignored.\nAlso, it will have a little cooldown desync with server.")
                 MessageSendHelper.sendWarningMessage("§6§lChat :§r brings CoolDown data from RendogServer's Chat,\nAble to display any item's cooldown,\nbut should turn on the setting §o'Show Skill Cooldown'§r\nand click your item twice.")
                 MessageSendHelper.sendWarningMessage("§6§lBoth :§r Use Both Method at the Same time.")
+            }
+        }
+
+        safeListener<ClientChatReceivedEvent> { //moonlight
+            if (moonlightname == "") return@safeListener
+            if (it.message.unformattedText.trim() == "문라이트가 영혼을 방출합니다!") {
+                itemcd[moonlightname]!!.second = (currentTimeMillis() + (1000 * RendogCDManager.getCD(moonlightname)).toLong())
+                moonlightname = ""
             }
         }
 
@@ -127,7 +136,10 @@ internal object RPGCoolDown : HudElement(
             else {
                 if (method == Method.Both) chatdetectupdate(true, player.inventory.getCurrentItem().displayName)
                 if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isableinvillage(player.inventory.getCurrentItem().displayName))) { //village
-                    if ((itemcd[player.inventory.getCurrentItem().displayName]!!.second - currentTimeMillis()) <= 0) {
+                    if (player.inventory.getCurrentItem().displayName.contains("문라이트")) {
+                        moonlightname = player.inventory.getCurrentItem().displayName
+                    }
+                    else if ((itemcd[player.inventory.getCurrentItem().displayName]!!.second - currentTimeMillis()) <= 0) {
                         itemcd[player.inventory.getCurrentItem().displayName]!!.second = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName)).toLong()
                     }
                 }
@@ -151,6 +163,9 @@ internal object RPGCoolDown : HudElement(
             else {
                 if (method == Method.Both) chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
                 if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isableinvillage(player.inventory.getCurrentItem().displayName))) { //village
+                    if (player.inventory.getCurrentItem().displayName.contains("문라이트") && player.inventory.getCurrentItem().displayName.contains("초월")) {
+                        moonlightname = player.inventory.getCurrentItem().displayName
+                    }
                     if ((itemcd[player.inventory.getCurrentItem().displayName]!!.first - currentTimeMillis()) <= 0) {
                         itemcd[player.inventory.getCurrentItem().displayName]!!.first = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName, false)).toLong()
                     }
