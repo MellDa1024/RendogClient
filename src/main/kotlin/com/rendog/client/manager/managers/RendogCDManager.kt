@@ -127,7 +127,6 @@ object RendogCDManager : Manager {
     }
 
     private fun versioncheck(compareversion :String) :Boolean {
-        versioninfo.indexOf("b2")
         return versioninfo.indexOf(compareversion) <= versioninfo.indexOf(RendogMod.VERSION.replace("GuideOnly", ""))
     }
 
