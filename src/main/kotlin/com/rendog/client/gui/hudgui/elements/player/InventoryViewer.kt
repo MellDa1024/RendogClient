@@ -105,7 +105,7 @@ internal object InventoryViewer : HudElement(
             val container = (mc.currentScreen as GuiContainer).inventorySlots
             if (container is ContainerChest && container.lowerChestInventory is InventoryBasic) {
                 val inv = (container.lowerChestInventory as InventoryBasic)
-                if (inv.name.equals("Ender Chest", true)) {
+                if (inv.name.equals("엔더 상자", true) || inv.name.equals("Ender Chest", true)) {
                     for (i in 0..26) enderChestContents[i] = container.inventory[i]
                 }
             }
