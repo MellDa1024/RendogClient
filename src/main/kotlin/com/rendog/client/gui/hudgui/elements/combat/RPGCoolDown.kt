@@ -102,7 +102,7 @@ internal object RPGCoolDown : HudElement(
             val patternedmassage = cdpattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
             if(patternedmassage.find()) {
                 patternedmassage.group(1).toFloat()
-                itemcd[player.inventory.getCurrentItem().displayName]!!.second = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
+                itemcd[rightclickchat]!!.second = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
                 rightclickchat = ""
             }
         }
@@ -116,7 +116,7 @@ internal object RPGCoolDown : HudElement(
             val patternedmassage = cdpattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
             if(patternedmassage.find()) {
                 patternedmassage.group(1).toFloat()
-                itemcd[player.inventory.getCurrentItem().displayName]!!.first = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
+                itemcd[leftclickchat]!!.first = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
                 leftclickchat = ""
             }
         }
