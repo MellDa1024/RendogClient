@@ -19,30 +19,32 @@ object RendogCDManager : Manager {
     private val ableinvillage = mutableListOf("")
     private var enabled = false
 
-    private val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponDataV2.json"
+    private const val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponDataV2.json"
+
+    private val versioninfo = arrayOf("b1", "b2", "b3")
 
     fun indatabase(item : String) : Boolean {
-        if (enabled) {
-            return cooldown.containsKey(removecolorcode(item).trim())
+        return if (enabled) {
+            cooldown.containsKey(removecolorcode(item).trim())
         } else {
             MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
-            return false
+            false
         }
     }
 
     fun getCD(item : String, rightclick : Boolean = true): Double {
         if (enabled) {
-            if (rightclick) {
+            return if (rightclick) {
                 if (cooldown.containsKey(removecolorcode(item))) {
-                    return cooldown[removecolorcode(item)]!!.second
+                    cooldown[removecolorcode(item)]!!.second
                 } else {
-                    return 0.0
+                    0.0
                 }
             } else {
                 if (cooldown.containsKey(removecolorcode(item))) {
-                    return cooldown[removecolorcode(item)]!!.first
+                    cooldown[removecolorcode(item)]!!.first
                 } else {
-                    return 0.0
+                    0.0
                 }
             }
         } else {
@@ -70,8 +72,8 @@ object RendogCDManager : Manager {
             cooldowndata = gson.fromJson(rawJson, object : TypeToken<WeaponDataList>() {}.type)
             cooldown.clear()
             ableinvillage.clear()
-            if (cooldowndata.version != RendogMod.VERSION.replace("GuideOnly","")) {
-                RendogMod.LOG.warn("CoolDownData needs RendogClient version ${cooldowndata.version} and your version is in ${RendogMod.VERSION}, The RendogClient Needs Update.")
+            if (!versioncheck(cooldowndata.version)) {
+                RendogMod.LOG.warn("CoolDownData needs RendogClient version ${cooldowndata.version} or higher, but your version is in ${RendogMod.VERSION}, The RendogClient Needs Update.")
                 RendogMod.LOG.warn("Update your RendogClient to new version.")
                 return false
             }
@@ -123,6 +125,12 @@ object RendogCDManager : Manager {
             return false
         }
     }
+
+    private fun versioncheck(compareversion :String) :Boolean {
+        versioninfo.indexOf("b2")
+        return versioninfo.indexOf(compareversion) <= versioninfo.indexOf(RendogMod.VERSION.replace("GuideOnly", ""))
+    }
+
 
     data class WeaponDataList(
         @SerializedName("Enabled")
