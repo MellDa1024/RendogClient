@@ -3,7 +3,7 @@ package com.rendog.client.util.threads
 import com.rendog.client.RendogMod
 import kotlinx.coroutines.*
 
-@Suppress("EXPERIMENTAL_API_USAGE")
+@OptIn(DelicateCoroutinesApi::class)
 internal object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Rendog Background")) {
 
     private val jobs = LinkedHashMap<BackgroundJob, Job?>()
