@@ -10,7 +10,10 @@ RendogClient의 경우 기존 Lambda 클라이언트에서 흔히 "핵"이라고
 물론 오픈 소스이기에 코드 수정 후 접속하면 그만이지만, 굳이 그렇게까지 할 필요가 있나 싶네요.
 
 ## 도움!
-무기의 쿨타임 데이터를 수집해야 합니다. 자세한 내용은 [여기](https://github.com/MellDa1024/RendogDataBase) 를 참고해주세요.
+~~무기의 쿨타임 데이터를 수집해야 합니다. 자세한 내용은 [여기](https://github.com/MellDa1024/RendogDataBase) 를 참고해주세요.~~  
+에픽~슈페리얼 각성/초월 무기들, 그리고 일부 히든무기들의 쿨타임을 전부 데이터베이스에 저장했습니다.  
+(초월 혈계심판, 브이미르 좌클릭은 기술상 문제로 넣지 않았어염)  
+이제 방방이나 엔비스처럼 Uncommon 등급이나 히든무기들의 데이터베이스만 추가되면 됩니다.
 
 ## 설치 방법 & 사용 방법(이미지 클릭)
 [![Video Label](http://img.youtube.com/vi/oW7Ijb_XhO4/maxresdefault.jpg)](https://youtu.be/oW7Ijb_XhO4?t=0s)
