@@ -55,7 +55,8 @@ internal object RPGCoolDown : HudElement(
     private var leftclickchat = ""
     private var moonlightname = ""
     private var lastslot = 0
-    private val cdpattern = Pattern.compile(" {3}\\[ RD ] {3}재사용 대기시간이 ([0-9.]*)초 남았습니다.")
+    private val cdPattern = Pattern.compile(" {3}\\[ RD ] {3}재사용 대기시간이 ([0-9.]*)초 남았습니다.")
+    private val cdMinPattern = Pattern.compile(" {3}\\[ RD ] {3}재사용 대기시간이 ([0-9]*)분 ([0-9.]*)초 남았습니다.")
 
     init {
         relativePosX = 0.0f
@@ -109,14 +110,15 @@ internal object RPGCoolDown : HudElement(
                 rightclickchat = ""
                 return@safeListener
             }
-            val patternedmassage = cdpattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
-            if(patternedmassage.find()) {
-                patternedmassage.group(1).toFloat()
-                itemcd[rightclickchat]!!.second = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
-                rightclickchat = ""
-            } else {
-                rightclickchat = ""
+            val patternedMessage = cdPattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
+            val patternedMessage2 = cdMinPattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
+            if(patternedMessage.find()) {
+                itemcd[rightclickchat]!!.second = (currentTimeMillis() + (1000 * patternedMessage.group(1).toFloat()).toLong())
+            } else if (patternedMessage2.find()) {
+                val temp = patternedMessage2.group(2).toFloat() + patternedMessage2.group(1).toFloat()*60
+                itemcd[rightclickchat]!!.second = (currentTimeMillis() + (1000 * temp).toLong())
             }
+            rightclickchat = ""
         }
 
         safeListener<ClientChatReceivedEvent> { //leftclick
@@ -129,14 +131,15 @@ internal object RPGCoolDown : HudElement(
                 leftclickchat = ""
                 return@safeListener
             }
-            val patternedmassage = cdpattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
-            if(patternedmassage.find()) {
-                patternedmassage.group(1).toFloat()
-                itemcd[leftclickchat]!!.first = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
-                leftclickchat = ""
-            } else {
-                leftclickchat = ""
+            val patternedMessage = cdPattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
+            val patternedMessage2 = cdMinPattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
+            if(patternedMessage.find()) {
+                itemcd[leftclickchat]!!.first = (currentTimeMillis() + (1000 * patternedMessage.group(1).toFloat()).toLong())
+            } else if (patternedMessage2.find()) {
+                val temp = patternedMessage2.group(2).toFloat() + patternedMessage2.group(1).toFloat()*60
+                itemcd[leftclickchat]!!.first = (currentTimeMillis() + (1000 * temp).toLong())
             }
+            leftclickchat = ""
         }
 
         safeListener<PacketEvent.Send> { event -> //rightclick
@@ -224,14 +227,20 @@ internal object RPGCoolDown : HudElement(
                     if (itemcd.containsKey(item.displayName)) {
                         val rightcoold = ((itemcd[item.displayName]!!.second - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
                         if (rightcoold <=0) drawItem(item, 2, 2, "")
-                        else {
+                        else if (rightcoold > 60){
+                            if (colorcode) drawItem(item, 2, 2, "§c${convertMin(rightcoold)}")
+                            else drawItem(item, 2, 2, "${convertMin(rightcoold)}")
+                        } else {
                             if (colorcode) drawItem(item, 2, 2, "§c$rightcoold")
                             else drawItem(item, 2, 2, "$rightcoold")
                         }
                         GlStateManager.translate(0.0f, -11.1f, 0.0f)
                         val leftcoold = ((itemcd[item.displayName]!!.first - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
                         if (leftcoold <=0) drawItem(item, 2, 2, "", true)
-                        else {
+                        else if (leftcoold > 60){
+                            if (colorcode) drawItem(item, 2, 2, "§e${convertMin(leftcoold)}}", true)
+                            else drawItem(item, 2, 2, "${convertMin(leftcoold)}", true)
+                        } else {
                             if (colorcode) drawItem(item, 2, 2, "§e$leftcoold", true)
                             else drawItem(item, 2, 2, "$leftcoold", true)
                         }
@@ -254,7 +263,17 @@ internal object RPGCoolDown : HudElement(
         if (horizontal) RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(180.0, 20.0), color = GuiColors.backGround.apply { a = alpha })
         else RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(20.0, 180.0), color = GuiColors.backGround.apply { a = alpha })
         if (horizontal) RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(180.0, 20.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
-        else  RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0, 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
+        else RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0, 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
+    }
+
+    private fun convertMin(time : Double) : String {
+        val minute = (time/60).toInt()
+        val second = (time.roundToInt() % 60)
+        if (second < 10) {
+            return "$minute:0$second"
+        } else {
+            return "$minute:$second"
+        }
     }
 
     private fun chatdetectupdate(isrightclick : Boolean, itemname : String) {
