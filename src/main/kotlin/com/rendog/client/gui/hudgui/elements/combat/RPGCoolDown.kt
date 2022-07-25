@@ -171,8 +171,7 @@ internal object RPGCoolDown : HudElement(
         safeListener<PacketEvent.Send> { event -> //leftclick
             if (event.packet !is CPacketAnimation) return@safeListener
             if (firstopen) return@safeListener
-            val animationpacket = event.packet as CPacketAnimation
-            if (animationpacket.hand != EnumHand.MAIN_HAND) return@safeListener
+            if (event.packet.hand != EnumHand.MAIN_HAND) return@safeListener
             if (!itemcd.containsKey(player.inventory.getCurrentItem().displayName)) {
                 for (i in 0..36) {
                     val item = player.inventory.getStackInSlot(i)
@@ -229,7 +228,7 @@ internal object RPGCoolDown : HudElement(
                         if (rightcoold <=0) drawItem(item, 2, 2, "")
                         else if (rightcoold > 60){
                             if (colorcode) drawItem(item, 2, 2, "§c${convertMin(rightcoold)}")
-                            else drawItem(item, 2, 2, "${convertMin(rightcoold)}")
+                            else drawItem(item, 2, 2, convertMin(rightcoold))
                         } else {
                             if (colorcode) drawItem(item, 2, 2, "§c$rightcoold")
                             else drawItem(item, 2, 2, "$rightcoold")
@@ -239,7 +238,7 @@ internal object RPGCoolDown : HudElement(
                         if (leftcoold <=0) drawItem(item, 2, 2, "", true)
                         else if (leftcoold > 60){
                             if (colorcode) drawItem(item, 2, 2, "§e${convertMin(leftcoold)}}", true)
-                            else drawItem(item, 2, 2, "${convertMin(leftcoold)}", true)
+                            else drawItem(item, 2, 2, convertMin(leftcoold), true)
                         } else {
                             if (colorcode) drawItem(item, 2, 2, "§e$leftcoold", true)
                             else drawItem(item, 2, 2, "$leftcoold", true)
