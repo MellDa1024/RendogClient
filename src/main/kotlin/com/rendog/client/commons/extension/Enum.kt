@@ -2,7 +2,7 @@ package com.rendog.client.commons.extension
 
 import com.rendog.client.commons.interfaces.DisplayEnum
 
-fun <E : Enum<E>> E.next(): E = declaringClass.enumConstants.run {
+fun <E : Enum<E>> E.next(): E = declaringJavaClass.enumConstants.run {
     get((ordinal + 1) % size)
 }
 

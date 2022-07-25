@@ -77,12 +77,6 @@ internal object Configurations : AbstractModule(
                 connected = false
                 log("RendogClient is only available in RendogServer.")
             }
-            if (!GuideManager.isGuide(mc.session.username) && RendogMod.VERSION.contains("GuideOnly")) {
-                if (mc.session.username != "Mell_Da") {
-                    connected = false
-                    log("This Version is Guide-Only. You are not on the Guide List.")
-                }
-            }
             if (mc.isIntegratedServerRunning) return@safeListener
         }
     }

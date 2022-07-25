@@ -21,8 +21,6 @@ object RendogCDManager : Manager {
 
     private const val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponDataV2.json"
 
-    private val versioninfo = arrayOf("b1", "b2", "b3")
-
     fun indatabase(item : String) : Boolean {
         return if (enabled) {
             cooldown.containsKey(removecolorcode(item).trim())
@@ -72,7 +70,7 @@ object RendogCDManager : Manager {
             cooldowndata = gson.fromJson(rawJson, object : TypeToken<WeaponDataList>() {}.type)
             cooldown.clear()
             ableinvillage.clear()
-            if (!versioncheck(cooldowndata.version)) {
+            if (RendogMod.VERSION != cooldowndata.version) {
                 RendogMod.LOG.warn("CoolDownData needs RendogClient version ${cooldowndata.version} or higher, but your version is in ${RendogMod.VERSION}, The RendogClient Needs Update.")
                 RendogMod.LOG.warn("Update your RendogClient to new version.")
                 return false
@@ -127,11 +125,6 @@ object RendogCDManager : Manager {
             return false
         }
     }
-
-    private fun versioncheck(compareversion :String) :Boolean {
-        return versioninfo.indexOf(compareversion) <= versioninfo.indexOf(RendogMod.VERSION.replace("GuideOnly", ""))
-    }
-
 
     data class WeaponDataList(
         @SerializedName("Enabled")

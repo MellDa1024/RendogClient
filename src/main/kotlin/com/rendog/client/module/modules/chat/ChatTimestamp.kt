@@ -7,6 +7,7 @@ import com.rendog.client.util.color.EnumTextColor
 import com.rendog.client.util.text.format
 import com.rendog.client.util.threads.safeListener
 import com.rendog.client.commons.interfaces.DisplayEnum
+import net.minecraft.util.text.ChatType
 import net.minecraft.util.text.TextComponentString
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 
@@ -23,6 +24,7 @@ object ChatTimestamp : Module(
 
     init {
         safeListener<ClientChatReceivedEvent> {
+            if (it.type == ChatType.GAME_INFO) return@safeListener
             it.message = TextComponentString(formattedTime).appendSibling(it.message)
         }
     }

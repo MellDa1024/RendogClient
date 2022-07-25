@@ -38,6 +38,7 @@ internal object RPGCoolDown : HudElement(
     private val horizontal by setting("Horizontal", true)
     private val background by setting("BackGround", true)
     private val alpha by setting("Alpha", 150, 0..255, 1, { background })
+    private val chatdelay by setting("Chat-Detection Delay", 150, 0..500 , 10, {method != Method.DataBase}, description = "How many ms to client wait for detect next leftclick information, it the value is too small, it could cause overwriting other weapon's cooldown.")
     private val colorcode by setting("Colored Cooldown", true)
     private var information by setting("Method Info", true, description = "Shows Each Methods Difference in chat.")
 
@@ -47,11 +48,13 @@ internal object RPGCoolDown : HudElement(
 
     data class VarPair(var first: Long, var second: Long)
 
+    private var lastswaptime = currentTimeMillis()
     private var itemcd = mutableMapOf<String, VarPair>() //left, right
     private var firstopen = true
     private var rightclickchat = ""
     private var leftclickchat = ""
     private var moonlightname = ""
+    private var lastslot = 0
     private val cdpattern = Pattern.compile(" {3}\\[ RD ] {3}재사용 대기시간이 ([0-9.]*)초 남았습니다.")
 
     init {
@@ -85,6 +88,13 @@ internal object RPGCoolDown : HudElement(
             }
         }
 
+        safeListener<TickEvent.ClientTickEvent> {
+            if (lastslot != player.inventory.currentItem) {
+                lastswaptime = currentTimeMillis()
+            }
+            lastslot = player.inventory.currentItem
+        }
+
         safeListener<ClientChatReceivedEvent> { //moonlight
             if (moonlightname == "") return@safeListener
             if (it.message.unformattedText.trim() == "문라이트가 영혼을 방출합니다!") {
@@ -104,6 +114,8 @@ internal object RPGCoolDown : HudElement(
                 patternedmassage.group(1).toFloat()
                 itemcd[rightclickchat]!!.second = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
                 rightclickchat = ""
+            } else {
+                rightclickchat = ""
             }
         }
 
@@ -113,10 +125,16 @@ internal object RPGCoolDown : HudElement(
                 leftclickchat = ""
                 return@safeListener
             }
+            if (currentTimeMillis() - lastswaptime <= chatdelay.toLong()) {
+                leftclickchat = ""
+                return@safeListener
+            }
             val patternedmassage = cdpattern.matcher(RendogCDManager.removecolorcode(it.message.unformattedText))
             if(patternedmassage.find()) {
                 patternedmassage.group(1).toFloat()
                 itemcd[leftclickchat]!!.first = (currentTimeMillis() + (1000 * patternedmassage.group(1).toFloat()).toLong())
+                leftclickchat = ""
+            } else {
                 leftclickchat = ""
             }
         }
@@ -150,7 +168,8 @@ internal object RPGCoolDown : HudElement(
         safeListener<PacketEvent.Send> { event -> //leftclick
             if (event.packet !is CPacketAnimation) return@safeListener
             if (firstopen) return@safeListener
-            if (event.packet.hand != EnumHand.MAIN_HAND) return@safeListener
+            val animationpacket = event.packet as CPacketAnimation
+            if (animationpacket.hand != EnumHand.MAIN_HAND) return@safeListener
             if (!itemcd.containsKey(player.inventory.getCurrentItem().displayName)) {
                 for (i in 0..36) {
                     val item = player.inventory.getStackInSlot(i)
@@ -159,10 +178,22 @@ internal object RPGCoolDown : HudElement(
                     }
                 }
             }
-            if (method == Method.Chat) chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
+            if (method == Method.Chat) {
+                if (currentTimeMillis() - lastswaptime >= chatdelay.toLong()) {
+                    chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
+                } else {
+                    chatdetectupdate(false, "")
+                }
+            }
             else {
-                if (method == Method.Both) chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
-                if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isableinvillage(player.inventory.getCurrentItem().displayName))) { //village
+                if (method == Method.Both) {
+                    if (currentTimeMillis() - lastswaptime >= chatdelay.toLong()) {
+                        chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
+                    } else {
+                        chatdetectupdate(false, "")
+                    }
+                }
+                if ((player.world.spawnPoint != BlockPos(278, 11, -134)) || ((player.world.spawnPoint == BlockPos(278, 11, -134)) && RendogCDManager.isableinvillage(player.inventory.getCurrentItem().displayName))) { //village
                     if (player.inventory.getCurrentItem().displayName.contains("문라이트") && player.inventory.getCurrentItem().displayName.contains("초월")) {
                         moonlightname = player.inventory.getCurrentItem().displayName
                     }
@@ -184,39 +215,39 @@ internal object RPGCoolDown : HudElement(
         else 180.0f
 
     override fun renderHud(vertexHelper: VertexHelper) {
-         if (background) drawFrame(vertexHelper)
-         GlStateManager.pushMatrix()
-         if (itemcd.isNotEmpty() && !firstopen) {
-             for (i in 0..8) {
-                 runSafe {
-                     val item = player.inventory.getStackInSlot(i)
-                     if (itemcd.containsKey(item.displayName)) {
-                         val rightcoold = ((itemcd[item.displayName]!!.second - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
-                         if (rightcoold <=0) drawItem(item, 2, 2, "")
-                         else {
-                             if (colorcode) drawItem(item, 2, 2, "§c$rightcoold")
-                             else drawItem(item, 2, 2, "$rightcoold")
-                         }
-                         GlStateManager.translate(0.0f, -11.1f, 0.0f)
-                         val leftcoold = ((itemcd[item.displayName]!!.first - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
-                         if (leftcoold <=0) drawItem(item, 2, 2, "", true)
-                         else {
-                             if (colorcode) drawItem(item, 2, 2, "§e$leftcoold", true)
-                             else drawItem(item, 2, 2, "$leftcoold", true)
-                         }
-                         GlStateManager.translate(0.0f, 11.1f, 0.0f)
-                         if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
-                         else GlStateManager.translate(0.0f, 20.0f, 0.0f)
-                     }
-                     else {
-                         drawItem(item, 2, 2, "")
-                         if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
-                         else GlStateManager.translate(0.0f, 20.0f, 0.0f)
-                     }
-                 }
-             }
-             GlStateManager.popMatrix()
-         }
+        if (background) drawFrame(vertexHelper)
+        GlStateManager.pushMatrix()
+        if (itemcd.isNotEmpty() && !firstopen) {
+            for (i in 0..8) {
+                runSafe {
+                    val item = player.inventory.getStackInSlot(i)
+                    if (itemcd.containsKey(item.displayName)) {
+                        val rightcoold = ((itemcd[item.displayName]!!.second - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
+                        if (rightcoold <=0) drawItem(item, 2, 2, "")
+                        else {
+                            if (colorcode) drawItem(item, 2, 2, "§c$rightcoold")
+                            else drawItem(item, 2, 2, "$rightcoold")
+                        }
+                        GlStateManager.translate(0.0f, -11.1f, 0.0f)
+                        val leftcoold = ((itemcd[item.displayName]!!.first - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
+                        if (leftcoold <=0) drawItem(item, 2, 2, "", true)
+                        else {
+                            if (colorcode) drawItem(item, 2, 2, "§e$leftcoold", true)
+                            else drawItem(item, 2, 2, "$leftcoold", true)
+                        }
+                        GlStateManager.translate(0.0f, 11.1f, 0.0f)
+                        if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
+                        else GlStateManager.translate(0.0f, 20.0f, 0.0f)
+                    }
+                    else {
+                        drawItem(item, 2, 2, "")
+                        if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
+                        else GlStateManager.translate(0.0f, 20.0f, 0.0f)
+                    }
+                }
+            }
+            GlStateManager.popMatrix()
+        }
     }
 
     private fun drawFrame(vertexHelper: VertexHelper) {
@@ -230,9 +261,7 @@ internal object RPGCoolDown : HudElement(
         /* istrue = rightclick, !istrue = leftclick */
         if (isrightclick) {
             rightclickchat = itemname
-            leftclickchat = ""
         } else {
-            rightclickchat = ""
             leftclickchat = itemname
         }
     }
