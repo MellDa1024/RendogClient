@@ -3,13 +3,9 @@ package com.rendog.client.util
 import com.rendog.client.RendogMod
 import com.rendog.client.manager.managers.*
 import com.rendog.client.setting.ConfigManager
-import com.rendog.client.setting.GenericConfig
-import com.rendog.client.setting.ModuleConfig
-import com.rendog.client.setting.configs.IConfig
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.nio.file.Files
 
 object ConfigUtils {
 
