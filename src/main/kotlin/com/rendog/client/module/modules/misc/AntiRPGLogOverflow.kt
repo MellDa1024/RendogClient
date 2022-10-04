@@ -12,7 +12,7 @@ import net.minecraft.network.play.server.SPacketSetPassengers
 internal object AntiRPGLogOverflow : Module(
     name = "AntiLogOverflow",
     category = Category.MISC,
-    description = "cancels unknown packet to stop log file to overflow",
+    description = "Cancels unknown packet to stop log file to overflow",
 ) {
     init {
         safeListener<PacketEvent.Receive>(1557) { event ->

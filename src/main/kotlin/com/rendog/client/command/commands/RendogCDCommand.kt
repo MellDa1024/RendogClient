@@ -27,26 +27,26 @@ object RendogCDCommand : ClientCommand(
                 }
             }
         }
-        literal("showinfo") {
-            greedy("weapon") { weaponname ->
+        literal("showInfo") {
+            greedy("weapon") { weaponName ->
                 execute("Shows Item's Database, weapon's name should be exact name of weapon.") {
-                    if (RendogCDManager.indatabase(weaponname.value)) {
-                        val leftclick = RendogCDManager.getCD(weaponname.value.trim(), false)
-                        val rightclick = RendogCDManager.getCD(weaponname.value.trim(), true)
-                        MessageSendHelper.sendChatMessage("${weaponname.value.trim()} 's Data : ")
-                        if (leftclick == 0.0) {
+                    if (RendogCDManager.inDatabase(weaponName.value)) {
+                        val leftClick = RendogCDManager.getCD(weaponName.value.trim(), false)
+                        val rightClick = RendogCDManager.getCD(weaponName.value.trim(), true)
+                        MessageSendHelper.sendChatMessage("${weaponName.value.trim()} 's Data : ")
+                        if (leftClick == 0.0) {
                             MessageSendHelper.sendChatMessage("LeftClick Cooldown : Unavailable")
                         } else {
-                            MessageSendHelper.sendChatMessage("LeftClick Cooldown : $leftclick")
+                            MessageSendHelper.sendChatMessage("LeftClick Cooldown : $leftClick")
                         }
-                        if (rightclick == 0.0) {
+                        if (rightClick == 0.0) {
                             MessageSendHelper.sendChatMessage("RightClick Cooldown : Unavailable")
                         } else {
-                            MessageSendHelper.sendChatMessage("RightClick Cooldown : $rightclick")
+                            MessageSendHelper.sendChatMessage("RightClick Cooldown : $rightClick")
                         }
-                        MessageSendHelper.sendChatMessage("Available in Village : ${RendogCDManager.isableinvillage(weaponname.value.trim())}")
+                        MessageSendHelper.sendChatMessage("Available in Village : ${RendogCDManager.isAbleInVillage(weaponName.value.trim())}")
                     } else {
-                        MessageSendHelper.sendErrorMessage("There isn't any data of weapon which named ${weaponname.value}.")
+                        MessageSendHelper.sendErrorMessage("There isn't any data of weapon which named ${weaponName.value}.")
                     }
                 }
             }
