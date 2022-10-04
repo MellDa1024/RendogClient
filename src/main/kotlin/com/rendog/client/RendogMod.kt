@@ -27,7 +27,7 @@ class RendogMod {
         const val ID = "rendog"
         const val DIRECTORY = "RendogClient/"
 
-        const val VERSION = "b4"
+        const val VERSION = "b5"
 
         const val DEPENDENCIES = "required-after:forge@[14.23.5.2860,);"
 
