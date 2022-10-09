@@ -19,11 +19,11 @@ object RendogCDManager : Manager {
     private lateinit var coolDownData: WeaponDataList
     private val ableInVillage = mutableListOf("")
     private var enabled = false
-    private val availableVersion = mutableListOf("b4, b5")
+    private val availableVersion = mutableListOf("b4, b5, b6")
 
     private const val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponDataV2.json"
 
-    fun inDatabase(item : String) : Boolean {
+    fun inDatabase(item: String) : Boolean {
         return if (enabled) {
             coolDown.containsKey(item.removeColorCode().trim())
         } else {
