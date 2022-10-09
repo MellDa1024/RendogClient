@@ -159,7 +159,7 @@ internal object RPGCoolDown : HudElement(
             else {
                 if (method == Method.Both) chatdetectupdate(true, player.inventory.getCurrentItem().displayName)
                 if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isAbleInVillage(player.inventory.getCurrentItem().displayName))) { //village
-                    if (player.inventory.getCurrentItem().displayName.contains("문라이트")) {
+                    if (player.inventory.getCurrentItem().displayName.contains("문라이트") && !player.inventory.getCurrentItem().displayName.contains("초월")) {
                         moonlightName = player.inventory.getCurrentItem().displayName
                     }
                     else if ((itemCD[player.inventory.getCurrentItem().displayName]!!.second - currentTimeMillis()) <= 0) {
@@ -198,9 +198,6 @@ internal object RPGCoolDown : HudElement(
                     }
                 }
                 if ((player.world.spawnPoint != BlockPos(278, 11, -134)) || ((player.world.spawnPoint == BlockPos(278, 11, -134)) && RendogCDManager.isAbleInVillage(player.inventory.getCurrentItem().displayName))) { //village
-                    if (player.inventory.getCurrentItem().displayName.contains("문라이트") && player.inventory.getCurrentItem().displayName.contains("초월")) {
-                        moonlightName = player.inventory.getCurrentItem().displayName
-                    }
                     if ((itemCD[player.inventory.getCurrentItem().displayName]!!.first - currentTimeMillis()) <= 0) {
                         itemCD[player.inventory.getCurrentItem().displayName]!!.first = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName, false)).toLong()
                     }

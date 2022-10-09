@@ -100,7 +100,7 @@ internal object FarmingStat : LabelHud(
             displayText.addLine("Hunted Mobs : ")
             for (mob in playerStat) {
                 displayText.add("${mob.key}", mobColor)
-                displayText.add(" : ", bracketColor)
+                displayText.add(":", bracketColor)
                 displayText.addLine("${mob.value}", countColor)
             }
         }
