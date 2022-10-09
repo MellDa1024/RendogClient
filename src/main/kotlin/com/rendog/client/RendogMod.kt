@@ -29,6 +29,7 @@ class RendogMod {
 
         const val VERSION = "b5"
 
+        const val APP_ID = 1028753674148782130 // DiscordIPC
         const val DEPENDENCIES = "required-after:forge@[14.23.5.2860,);"
 
         const val GITHUB_API = "https://api.github.com/"

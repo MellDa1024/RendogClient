@@ -99,6 +99,8 @@ dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
     compileOnly 'org.jetbrains:annotations:23.0.0'
 
+    jarLibs 'com.github.cbyrneee:DiscordIPC:e18542f600'
+
     // Add everything in jarLibs to implementation (compile)
     implementation configurations.jarLibs
 }
