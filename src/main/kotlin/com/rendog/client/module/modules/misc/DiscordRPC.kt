@@ -23,7 +23,7 @@ object DiscordRPC : Module(
     private val line2 by setting("Setting", LineInfo.USERNAME) // details right
 
     private enum class LineInfo {
-        VERSION, USERNAME, HEALTH, SPEED, FPS, NONE
+        VERSION, USERNAME, HEALTH, SPEED, FPS
     }
 
     // Not using "by lazy" to be able to catch failure in onEnable
@@ -113,7 +113,7 @@ object DiscordRPC : Module(
     private fun getLine(line: LineInfo): String {
         return when (line) {
             LineInfo.VERSION -> {
-                RendogMod.VERSION
+                "Client Version : ${RendogMod.VERSION}"
             }
             LineInfo.USERNAME -> {
                 "IGN : ${mc.session.username}"
@@ -124,7 +124,7 @@ object DiscordRPC : Module(
             }
             LineInfo.SPEED -> {
                 runSafeR {
-                    "${"%.1f".format(speed())} m/s"
+                    "Speed : ${"%.1f".format(speed())} m/s"
                 } ?: "No Speed"
             }
            /* LineInfo.HELD_ITEM -> {
@@ -138,9 +138,6 @@ object DiscordRPC : Module(
             }*/ //Not now, troubleshooting unicode problem
             LineInfo.FPS -> {
                 "${Minecraft.getDebugFPS()} FPS"
-            }
-            else -> {
-                " "
             }
         }
     }
