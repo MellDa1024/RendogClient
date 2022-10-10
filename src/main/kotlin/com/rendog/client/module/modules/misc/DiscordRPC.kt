@@ -85,7 +85,7 @@ object DiscordRPC : Module(
         when (ipc.status) {
             PipeStatus.CONNECTED -> {
                 val richPresence = rpcBuilder
-                    .setDetails("Playing RendogServer")
+                    .setDetails("Using RendogClient")
                     .setState(getLine(line2))
                     .build()
                 ipc.sendRichPresence(richPresence)
