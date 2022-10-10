@@ -34,6 +34,7 @@ object HealthUtils {
 
     fun getRendogCurrentHealth(player: EntityPlayer) : Float{
         val maxHealth = getRendogMaxHealth(player)
-        return maxHealth / 20 * player.health
+        return if (player.health == 20f) maxHealth.toFloat()
+        else maxHealth / 20 * player.health
     }
 }
