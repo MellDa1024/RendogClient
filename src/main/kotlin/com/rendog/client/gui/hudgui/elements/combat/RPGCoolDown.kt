@@ -40,6 +40,7 @@ internal object RPGCoolDown : HudElement(
     private val horizontal by setting("Horizontal", true)
     private val background by setting("BackGround", true)
     private val alpha by setting("Alpha", 150, 0..255, 1, { background })
+    private val extension by setting("Extension", 0, 0..3, 1, unit = " line")
     private val chatDelay by setting("Chat-Detection Delay", 150, 0..500 , 10, {method != Method.DataBase}, description = "How many ms to client wait for detect next leftclick information, it the value is too small, it could cause overwriting other weapon's cooldown.")
     private val colorCode by setting("Colored Cooldown", true)
     private var information by setting("Method Info", true, description = "Shows Each Methods Difference in chat.")
@@ -208,59 +209,65 @@ internal object RPGCoolDown : HudElement(
 
     override val hudWidth: Float
         get() = if (horizontal) 180.0f
-        else 20.0f
+        else (20.0f * (extension+1))
 
     override val hudHeight: Float
-        get() = if (horizontal) 20.0f
+        get() = if (horizontal) (20.0f * (extension+1))
         else 180.0f
 
     override fun renderHud(vertexHelper: VertexHelper) {
         if (background) drawFrame(vertexHelper)
         GlStateManager.pushMatrix()
         if (itemCD.isNotEmpty() && !firstOpen) {
-            for (i in 0..8) {
-                runSafe {
-                    val item = player.inventory.getStackInSlot(i)
-                    if (itemCD.containsKey(item.displayName)) {
-                        val rightcoold = ((itemCD[item.displayName]!!.second - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
-                        if (rightcoold <=0) drawItem(item, 2, 2, "")
-                        else if (rightcoold > 60){
-                            if (colorCode) drawItem(item, 2, 2, "§c${convertMin(rightcoold)}")
-                            else drawItem(item, 2, 2, convertMin(rightcoold))
-                        } else {
-                            if (colorCode) drawItem(item, 2, 2, "§c$rightcoold")
-                            else drawItem(item, 2, 2, "$rightcoold")
-                        }
-                        GlStateManager.translate(0.0f, -11.1f, 0.0f)
-                        val leftcoold = ((itemCD[item.displayName]!!.first - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
-                        if (leftcoold <=0) drawItem(item, 2, 2, "", true)
-                        else if (leftcoold > 60){
-                            if (colorCode) drawItem(item, 2, 2, "§e${convertMin(leftcoold)}}", true)
-                            else drawItem(item, 2, 2, convertMin(leftcoold), true)
-                        } else {
-                            if (colorCode) drawItem(item, 2, 2, "§e$leftcoold", true)
-                            else drawItem(item, 2, 2, "$leftcoold", true)
-                        }
-                        GlStateManager.translate(0.0f, 11.1f, 0.0f)
-                        if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
-                        else GlStateManager.translate(0.0f, 20.0f, 0.0f)
-                    }
-                    else {
-                        drawItem(item, 2, 2, "")
-                        if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
-                        else GlStateManager.translate(0.0f, 20.0f, 0.0f)
-                    }
-                }
-            }
+            if (extension !=0) for (i in (4 - extension) * 9 until 36) drawItem(i)
+            for (i in 0..8) drawItem(i)
             GlStateManager.popMatrix()
         }
     }
 
+    private fun drawItem(slot : Int) {
+        runSafe {
+            val item = player.inventory.getStackInSlot(slot)
+            if (itemCD.containsKey(item.displayName)) {
+                val rightcoold = ((itemCD[item.displayName]!!.second - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
+                if (rightcoold <=0) drawItem(item, 2, 2, "")
+                else if (rightcoold > 60){
+                    if (colorCode) drawItem(item, 2, 2, "§c${convertMin(rightcoold)}")
+                    else drawItem(item, 2, 2, convertMin(rightcoold))
+                } else {
+                    if (colorCode) drawItem(item, 2, 2, "§c$rightcoold")
+                    else drawItem(item, 2, 2, "$rightcoold")
+                }
+                GlStateManager.translate(0.0f, -11.1f, 0.0f)
+                val leftcoold = ((itemCD[item.displayName]!!.first - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
+                if (leftcoold <=0) drawItem(item, 2, 2, "", true)
+                else if (leftcoold > 60){
+                    if (colorCode) drawItem(item, 2, 2, "§e${convertMin(leftcoold)}}", true)
+                    else drawItem(item, 2, 2, convertMin(leftcoold), true)
+                } else {
+                    if (colorCode) drawItem(item, 2, 2, "§e$leftcoold", true)
+                    else drawItem(item, 2, 2, "$leftcoold", true)
+                }
+                GlStateManager.translate(0.0f, 11.1f, 0.0f)
+                if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
+                else GlStateManager.translate(0.0f, 20.0f, 0.0f)
+            }
+            else {
+                drawItem(item, 2, 2, "")
+                if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
+                else GlStateManager.translate(0.0f, 20.0f, 0.0f)
+            }
+            if ((slot+1) % 9 == 0) {
+                if (horizontal) GlStateManager.translate(-180.0f, 20.0f, 0.0f)
+                else GlStateManager.translate(20.0f, -180.0f, 0.0f)
+            }
+        }
+    }
     private fun drawFrame(vertexHelper: VertexHelper) {
-        if (horizontal) RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(180.0, 20.0), color = GuiColors.backGround.apply { a = alpha })
-        else RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(20.0, 180.0), color = GuiColors.backGround.apply { a = alpha })
-        if (horizontal) RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(180.0, 20.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
-        else RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0, 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
+        if (horizontal) RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(180.0, 20.0 * (extension + 1)), color = GuiColors.backGround.apply { a = alpha })
+        else RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(20.0 * (extension + 1), 180.0), color = GuiColors.backGround.apply { a = alpha })
+        if (horizontal) RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(180.0, 20.0 * (extension + 1)), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
+        else RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0 * (extension + 1), 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
     }
 
     private fun convertMin(time : Double) : String {
