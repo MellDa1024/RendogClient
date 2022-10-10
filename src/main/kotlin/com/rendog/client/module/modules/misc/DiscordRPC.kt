@@ -8,12 +8,14 @@ import com.rendog.client.RendogMod
 import com.rendog.client.module.Category
 import com.rendog.client.module.Module
 import com.rendog.client.util.InfoCalculator.speed
+import com.rendog.client.util.combat.HealthUtils.getRendogCurrentHealth
 import com.rendog.client.util.text.MessageSendHelper
 import com.rendog.client.util.threads.BackgroundJob
 import com.rendog.client.util.threads.BackgroundScope
 import com.rendog.client.util.threads.runSafeR
 import net.minecraft.client.Minecraft
 import java.time.OffsetDateTime
+import kotlin.math.roundToInt
 
 object DiscordRPC : Module(
     name = "DiscordRPC",
@@ -21,6 +23,7 @@ object DiscordRPC : Module(
     category = Category.MISC
 ) {
     private val line2 by setting("Setting", LineInfo.USERNAME) // details right
+    private val noIgn by setting("No Ign Mark", false, { line2 == LineInfo.USERNAME })
 
     private enum class LineInfo {
         VERSION, USERNAME, HEALTH, SPEED, FPS
@@ -116,10 +119,11 @@ object DiscordRPC : Module(
                 "Client Version : ${RendogMod.VERSION}"
             }
             LineInfo.USERNAME -> {
-                "IGN : ${mc.session.username}"
+                if (noIgn) "${mc.session.username}"
+                else "IGN : ${mc.session.username}"
             }
             LineInfo.HEALTH -> {
-                if (mc.player != null) "${mc.player.health.toInt()} HP"
+                if (mc.player != null) "${getRendogCurrentHealth(mc.player).roundToInt()} HP"
                 else "No HP"
             }
             LineInfo.SPEED -> {
