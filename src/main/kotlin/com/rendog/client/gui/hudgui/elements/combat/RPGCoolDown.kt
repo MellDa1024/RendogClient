@@ -1,7 +1,8 @@
 package com.rendog.client.gui.hudgui.elements.combat
 
-import com.rendog.client.gui.hudgui.HudElement
+import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.event.listener.events.PacketEvent
+import com.rendog.client.gui.hudgui.HudElement
 import com.rendog.client.manager.managers.RendogCDManager
 import com.rendog.client.module.modules.client.GuiColors
 import com.rendog.client.util.graphics.GlStateUtils
@@ -9,8 +10,8 @@ import com.rendog.client.util.graphics.RenderUtils2D
 import com.rendog.client.util.graphics.VertexHelper
 import com.rendog.client.util.graphics.font.HAlign
 import com.rendog.client.util.math.Vec2d
+import com.rendog.client.util.text.Color.deColorize
 import com.rendog.client.util.text.MessageSendHelper
-import com.rendog.client.util.text.RemoveColorCode.removeColorCode
 import com.rendog.client.util.threads.runSafe
 import com.rendog.client.util.threads.safeListener
 import net.minecraft.client.audio.PositionedSoundRecord
@@ -41,18 +42,27 @@ internal object RPGCoolDown : HudElement(
     private val background by setting("BackGround", true)
     private val alpha by setting("Alpha", 150, 0..255, 1, { background })
     private val extension by setting("Extension", 0, 0..3, 1, unit = " line")
-    private val chatDelay by setting("Chat-Detection Delay", 150, 0..500 , 10, {method != Method.DataBase}, description = "How many ms to client wait for detect next leftclick information, it the value is too small, it could cause overwriting other weapon's cooldown.")
-    private val colorCode by setting("Colored Cooldown", true)
-    private var information by setting("Method Info", true, description = "Shows Each Methods Difference in chat.")
+    private val chatDelay by setting("Chat-Detection Delay", 150, 0..500, 10, { method != Method.DataBase }, description = "How many ms to client wait for detect next leftclick information, it the value is too small, it could cause overwriting other weapon's cooldown.")
+    private val colorCode by setting("Colored CoolDown", true)
+    private var information by setting("Method Info", false, description = "Shows Each Methods Difference in chat.", consumer = { _, _ ->
+        mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
+        MessageSendHelper.sendWarningMessage("§f§l[ §r§b§lRPGTimer Method Information §r§f§l]")
+        MessageSendHelper.sendWarningMessage("§6§lDataBase :§r brings CoolDown data from plugin's Database.\nThe item which isn't in a database will be ignored.\nAlso, it will have a little cooldown desync with server.")
+        MessageSendHelper.sendWarningMessage("§6§lChat :§r brings CoolDown data from RendogServer's Chat,\nAble to display any item's cooldown,\nbut should turn on the setting §o'Show Skill Cooldown'§r\nand click your item twice.")
+        MessageSendHelper.sendWarningMessage("§6§lBoth :§r Use Both Method at the Same time.")
+        false
+    })
 
-    private enum class Method{
+    private enum class Method {
         DataBase, Chat, Both
     }
 
-    data class VarPair(var first: Long, var second: Long)
+    data class PWeaponCoolDown(var leftCD: Long, var rightCD: Long)
+
+    enum class CoolDownType { LEFT, RIGHT }
 
     private var lastSwapTime = currentTimeMillis()
-    private var itemCD = ConcurrentHashMap<String, VarPair>() //left, right
+    private var itemCD = ConcurrentHashMap<String, PWeaponCoolDown>() //left, right
     private var firstOpen = true
     private var rightClickChat = ""
     private var leftClickChat = ""
@@ -71,60 +81,42 @@ internal object RPGCoolDown : HudElement(
         safeListener<TickEvent.ClientTickEvent> {
             if (firstOpen) {
                 itemCD.clear()
-                runSafe {
-                    for (i in 0..36) {
-                        val item = player.inventory.getStackInSlot(i)
-                        if (!itemCD.containsKey(item.displayName)) {
-                            itemCD[item.displayName] = VarPair(currentTimeMillis(), currentTimeMillis())
-                        }
-                    }
-                }
+                runSafe { updateWeaponInv() }
                 firstOpen = false
-            }
-
-            if (information) {
-                information = false
-                mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
-                MessageSendHelper.sendWarningMessage("§f§l[ §r§b§lRPGTimer Method Information §r§f§l]")
-                MessageSendHelper.sendWarningMessage("§6§lDataBase :§r brings CoolDown data from plugin's Database.\nThe item which isn't in a database will be ignored.\nAlso, it will have a little cooldown desync with server.")
-                MessageSendHelper.sendWarningMessage("§6§lChat :§r brings CoolDown data from RendogServer's Chat,\nAble to display any item's cooldown,\nbut should turn on the setting §o'Show Skill Cooldown'§r\nand click your item twice.")
-                MessageSendHelper.sendWarningMessage("§6§lBoth :§r Use Both Method at the Same time.")
             }
         }
 
         safeListener<TickEvent.ClientTickEvent> {
-            if (lastSlot != player.inventory.currentItem) {
-                lastSwapTime = currentTimeMillis()
-            }
+            if (lastSlot != player.inventory.currentItem) lastSwapTime = currentTimeMillis()
             lastSlot = player.inventory.currentItem
         }
 
         safeListener<ClientChatReceivedEvent> { //moonlight
             if (moonlightName == "") return@safeListener
             if (it.message.unformattedText.trim() == "문라이트가 영혼을 방출합니다!") {
-                itemCD[moonlightName]!!.second = (currentTimeMillis() + (1000 * RendogCDManager.getCD(moonlightName)).toLong())
+                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, RendogCDManager.getCD(moonlightName))
                 moonlightName = ""
             }
         }
 
-        safeListener<ClientChatReceivedEvent> { //rightclick
+        safeListener<ClientChatReceivedEvent> { //rightClick
             if (rightClickChat == "") return@safeListener
             if (!it.message.formattedText.contains("재사용 대기시간이 §r§c§l")) {
                 rightClickChat = ""
                 return@safeListener
             }
-            val patternedMessage = cdPattern.matcher(it.message.unformattedText.removeColorCode())
-            val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.removeColorCode())
-            if(patternedMessage.find()) {
-                itemCD[rightClickChat]!!.second = (currentTimeMillis() + (1000 * patternedMessage.group(1).toFloat()).toLong())
+            val patternedMessage = cdPattern.matcher(it.message.unformattedText.deColorize())
+            val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.deColorize())
+            if (patternedMessage.find()) {
+                updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, patternedMessage.group(1).toDouble())
             } else if (patternedMessage2.find()) {
-                val temp = patternedMessage2.group(2).toFloat() + patternedMessage2.group(1).toFloat()*60
-                itemCD[rightClickChat]!!.second = (currentTimeMillis() + (1000 * temp).toLong())
+                val value = patternedMessage2.group(2).toDouble() + patternedMessage2.group(1).toDouble() * 60
+                updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, value)
             }
             rightClickChat = ""
         }
 
-        safeListener<ClientChatReceivedEvent> { //leftclick
+        safeListener<ClientChatReceivedEvent> { //leftClick
             if (leftClickChat == "") return@safeListener
             if (!it.message.formattedText.contains("재사용 대기시간이 §r§e§l")) {
                 leftClickChat = ""
@@ -134,116 +126,134 @@ internal object RPGCoolDown : HudElement(
                 leftClickChat = ""
                 return@safeListener
             }
-            val patternedMessage = cdPattern.matcher(it.message.unformattedText.removeColorCode())
-            val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.removeColorCode())
-            if(patternedMessage.find()) {
-                itemCD[leftClickChat]!!.first = (currentTimeMillis() + (1000 * patternedMessage.group(1).toFloat()).toLong())
+            val patternedMessage = cdPattern.matcher(it.message.unformattedText.deColorize())
+            val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.deColorize())
+            if (patternedMessage.find()) {
+                updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, patternedMessage.group(1).toDouble())
             } else if (patternedMessage2.find()) {
-                val temp = patternedMessage2.group(2).toFloat() + patternedMessage2.group(1).toFloat()*60
-                itemCD[leftClickChat]!!.first = (currentTimeMillis() + (1000 * temp).toLong())
+                val value = patternedMessage2.group(2).toDouble() + patternedMessage2.group(1).toDouble() * 60
+                updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, value)
             }
             leftClickChat = ""
         }
 
-        safeListener<PacketEvent.Send> { event -> //rightclick
+        safeListener<PacketEvent.Send> { event -> //rightClick
             if (event.packet !is CPacketPlayerTryUseItem) return@safeListener
             if (firstOpen) return@safeListener
-            if (!itemCD.containsKey(player.inventory.getCurrentItem().displayName)) {
-                for (i in 0..36) {
-                    val item = player.inventory.getStackInSlot(i)
-                    if (!itemCD.containsKey(item.displayName)) {
-                        itemCD[item.displayName] = VarPair(currentTimeMillis(), currentTimeMillis())
-                    }
-                }
+            val item = player.inventory.getCurrentItem()
+            if (!itemCD.containsKey(item.displayName)) {
+                item.addWeaponCDData()
             }
-            if (method == Method.Chat) chatdetectupdate(true, player.inventory.getCurrentItem().displayName)
-            else {
-                if (method == Method.Both) chatdetectupdate(true, player.inventory.getCurrentItem().displayName)
-                if ((player.world.spawnPoint != BlockPos(278,11, -134)) || ((player.world.spawnPoint == BlockPos(278,11, -134)) && RendogCDManager.isAbleInVillage(player.inventory.getCurrentItem().displayName))) { //village
-                    if (player.inventory.getCurrentItem().displayName.contains("문라이트") && !player.inventory.getCurrentItem().displayName.contains("초월")) {
-                        moonlightName = player.inventory.getCurrentItem().displayName
-                    }
-                    else if ((itemCD[player.inventory.getCurrentItem().displayName]!!.second - currentTimeMillis()) <= 0) {
-                        itemCD[player.inventory.getCurrentItem().displayName]!!.second = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName)).toLong()
-                    }
+            if (method != Method.DataBase) chatDetectionUpdate(CoolDownType.RIGHT, player.inventory.getCurrentItem().displayName)
+            if (method == Method.Chat) return@safeListener
+            if (checkVillageAndValidation(item)) {
+                if (item.displayName.contains("문라이트") && !item.displayName.contains("초월")) {
+                    moonlightName = item.displayName
+                } else if ((itemCD[item.displayName]!!.rightCD - currentTimeMillis()) <= 0) {
+                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, RendogCDManager.getCD(item.displayName))
                 }
-
             }
         }
 
-        safeListener<PacketEvent.Send> { event -> //leftclick
+        safeListener<PacketEvent.Send> { event -> //leftClick
             if (event.packet !is CPacketAnimation) return@safeListener
             if (firstOpen) return@safeListener
             if (event.packet.hand != EnumHand.MAIN_HAND) return@safeListener
-            if (!itemCD.containsKey(player.inventory.getCurrentItem().displayName)) {
-                for (i in 0..36) {
-                    val item = player.inventory.getStackInSlot(i)
-                    if (!itemCD.containsKey(item.displayName)) {
-                        itemCD[item.displayName] = VarPair(currentTimeMillis(), currentTimeMillis())
-                    }
-                }
+            val item = player.inventory.getCurrentItem()
+            if (!itemCD.containsKey(item.displayName)) {
+                item.addWeaponCDData()
             }
-            if (method == Method.Chat) {
+            if (method != Method.DataBase) {
                 if (currentTimeMillis() - lastSwapTime >= chatDelay.toLong()) {
-                    chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
-                } else {
-                    chatdetectupdate(false, "")
-                }
+                    chatDetectionUpdate(CoolDownType.LEFT, player.inventory.getCurrentItem().displayName)
+                } else chatDetectionUpdate(CoolDownType.LEFT, "")
             }
-            else {
-                if (method == Method.Both) {
-                    if (currentTimeMillis() - lastSwapTime >= chatDelay.toLong()) {
-                        chatdetectupdate(false, player.inventory.getCurrentItem().displayName)
-                    } else {
-                        chatdetectupdate(false, "")
-                    }
-                }
-                if ((player.world.spawnPoint != BlockPos(278, 11, -134)) || ((player.world.spawnPoint == BlockPos(278, 11, -134)) && RendogCDManager.isAbleInVillage(player.inventory.getCurrentItem().displayName))) { //village
-                    if ((itemCD[player.inventory.getCurrentItem().displayName]!!.first - currentTimeMillis()) <= 0) {
-                        itemCD[player.inventory.getCurrentItem().displayName]!!.first = (currentTimeMillis() + 1000 * RendogCDManager.getCD(player.inventory.getCurrentItem().displayName, false)).toLong()
-                    }
+            if (method == Method.Chat) return@safeListener
+            if (checkVillageAndValidation(item)) {
+                if ((itemCD[player.inventory.getCurrentItem().displayName]!!.leftCD - currentTimeMillis()) <= 0) {
+                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, RendogCDManager.getCD(item.displayName, false))
                 }
             }
         }
     }
 
+    private fun updateWeaponCoolDown(weaponName: String, coolDownType: CoolDownType, value: Double) {
+        when (coolDownType) {
+            CoolDownType.RIGHT -> itemCD[weaponName]?.rightCD = currentTimeMillis() + (1000 * value).toLong()
+            CoolDownType.LEFT -> itemCD[weaponName]?.leftCD = currentTimeMillis() + (1000 * value).toLong()
+        }
+    }
+
+    private fun SafeClientEvent.updateWeaponInv() {
+        for (i in 0..36) {
+            val item = player.inventory.getStackInSlot(i)
+            if (!itemCD.containsKey(item.displayName)) {
+                item.addWeaponCDData()
+            }
+        }
+    }
+
+    private fun ItemStack.addWeaponCDData() {
+        itemCD[this.displayName] = PWeaponCoolDown(currentTimeMillis(), currentTimeMillis())
+    }
+
+    private fun SafeClientEvent.checkVillageAndValidation(item: ItemStack): Boolean {
+        return ((player.world.spawnPoint != BlockPos(278, 11, -134)) ||
+            ((player.world.spawnPoint == BlockPos(278, 11, -134)) && RendogCDManager.isAbleInVillage(item.displayName)))
+    }
+
+    private fun chatDetectionUpdate(coolDownType: CoolDownType, itemName: String) {
+        when (coolDownType) {
+            CoolDownType.RIGHT -> rightClickChat = itemName
+            CoolDownType.LEFT -> leftClickChat = itemName
+        }
+    }
+
+    private fun convert2Min(time: Double): String {
+        val minute = (time / 60).toInt()
+        val second = (time.roundToInt() % 60)
+        return if (second < 10) "$minute:0$second"
+        else "$minute:$second"
+    }
+
+
     override val hudWidth: Float
         get() = if (horizontal) 180.0f
-        else (20.0f * (extension+1))
+        else (20.0f * (extension + 1))
 
     override val hudHeight: Float
-        get() = if (horizontal) (20.0f * (extension+1))
+        get() = if (horizontal) (20.0f * (extension + 1))
         else 180.0f
 
     override fun renderHud(vertexHelper: VertexHelper) {
         if (background) drawFrame(vertexHelper)
         GlStateManager.pushMatrix()
         if (itemCD.isNotEmpty() && !firstOpen) {
-            if (extension !=0) for (i in (4 - extension) * 9 until 36) drawItem(i)
+            if (extension != 0) for (i in (4 - extension) * 9 until 36) drawItem(i)
             for (i in 0..8) drawItem(i)
             GlStateManager.popMatrix()
         }
     }
 
-    private fun drawItem(slot : Int) {
+    private fun drawItem(slot: Int) {
         runSafe {
             val item = player.inventory.getStackInSlot(slot)
             if (itemCD.containsKey(item.displayName)) {
-                val rightcoold = ((itemCD[item.displayName]!!.second - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
-                if (rightcoold <=0) drawItem(item, 2, 2, "")
-                else if (rightcoold > 60){
-                    if (colorCode) drawItem(item, 2, 2, "§c${convertMin(rightcoold)}")
-                    else drawItem(item, 2, 2, convertMin(rightcoold))
+                val rightcoold = ((itemCD[item.displayName]!!.rightCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
+                if (rightcoold <= 0) drawItem(item, 2, 2, "")
+                else if (rightcoold > 60) {
+                    if (colorCode) drawItem(item, 2, 2, "§c${convert2Min(rightcoold)}")
+                    else drawItem(item, 2, 2, convert2Min(rightcoold))
                 } else {
                     if (colorCode) drawItem(item, 2, 2, "§c$rightcoold")
                     else drawItem(item, 2, 2, "$rightcoold")
                 }
                 GlStateManager.translate(0.0f, -11.1f, 0.0f)
-                val leftcoold = ((itemCD[item.displayName]!!.first - currentTimeMillis()).toDouble()/100.0).roundToInt()/10.0
-                if (leftcoold <=0) drawItem(item, 2, 2, "", true)
-                else if (leftcoold > 60){
-                    if (colorCode) drawItem(item, 2, 2, "§e${convertMin(leftcoold)}}", true)
-                    else drawItem(item, 2, 2, convertMin(leftcoold), true)
+                val leftcoold = ((itemCD[item.displayName]!!.leftCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
+                if (leftcoold <= 0) drawItem(item, 2, 2, "", true)
+                else if (leftcoold > 60) {
+                    if (colorCode) drawItem(item, 2, 2, "§e${convert2Min(leftcoold)}}", true)
+                    else drawItem(item, 2, 2, convert2Min(leftcoold), true)
                 } else {
                     if (colorCode) drawItem(item, 2, 2, "§e$leftcoold", true)
                     else drawItem(item, 2, 2, "$leftcoold", true)
@@ -251,18 +261,18 @@ internal object RPGCoolDown : HudElement(
                 GlStateManager.translate(0.0f, 11.1f, 0.0f)
                 if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
                 else GlStateManager.translate(0.0f, 20.0f, 0.0f)
-            }
-            else {
+            } else {
                 drawItem(item, 2, 2, "")
                 if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
                 else GlStateManager.translate(0.0f, 20.0f, 0.0f)
             }
-            if ((slot+1) % 9 == 0) {
+            if ((slot + 1) % 9 == 0) {
                 if (horizontal) GlStateManager.translate(-180.0f, 20.0f, 0.0f)
                 else GlStateManager.translate(20.0f, -180.0f, 0.0f)
             }
         }
     }
+
     private fun drawFrame(vertexHelper: VertexHelper) {
         if (horizontal) RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(180.0, 20.0 * (extension + 1)), color = GuiColors.backGround.apply { a = alpha })
         else RenderUtils2D.drawRectFilled(vertexHelper, posEnd = Vec2d(20.0 * (extension + 1), 180.0), color = GuiColors.backGround.apply { a = alpha })
@@ -270,24 +280,6 @@ internal object RPGCoolDown : HudElement(
         else RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0 * (extension + 1), 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
     }
 
-    private fun convertMin(time : Double) : String {
-        val minute = (time/60).toInt()
-        val second = (time.roundToInt() % 60)
-        if (second < 10) {
-            return "$minute:0$second"
-        } else {
-            return "$minute:$second"
-        }
-    }
-
-    private fun chatdetectupdate(isRightClick : Boolean, itemName : String) {
-        /* istrue = rightclick, !istrue = leftclick */
-        if (isRightClick) {
-            rightClickChat = itemName
-        } else {
-            leftClickChat = itemName
-        }
-    }
 
     private fun drawItem(itemStack: ItemStack, x: Int, y: Int, text: String? = null, invisibleItem: Boolean = false) {
         GlStateUtils.blend(true)
@@ -307,7 +299,6 @@ internal object RPGCoolDown : HudElement(
         GlStateUtils.depth(false)
         GlStateUtils.texture2d(true)
     }
-
 
     private fun renderItemOverlayIntoGUI(fr: FontRenderer, stack: ItemStack, xPosition: Int, yPosition: Int, text: String?, rightAlign: Boolean = true) {
         if (!stack.isEmpty) {
