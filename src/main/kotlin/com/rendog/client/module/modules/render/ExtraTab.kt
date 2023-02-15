@@ -4,7 +4,7 @@ import com.rendog.client.manager.managers.GuideManager
 import com.rendog.client.module.Category
 import com.rendog.client.module.Module
 import com.rendog.client.util.color.EnumTextColor
-import com.rendog.client.util.text.RemoveColorCode.removeColorCode
+import com.rendog.client.util.text.Color.deColorize
 import com.rendog.client.util.text.format
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.scoreboard.ScorePlayerTeam
@@ -23,8 +23,8 @@ object ExtraTab : Module(
         val name = info.displayName?.formattedText
             ?: ScorePlayerTeam.formatPlayerName(info.playerTeam, info.gameProfile.name)
 
-        return if (GuideManager.isGuide(name.removeColorCode())) {
-            guidecolor format name.removeColorCode()
+        return if (GuideManager.isGuide(name.deColorize())) {
+            guidecolor format name.deColorize()
         } else {
             name
         }

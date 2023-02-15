@@ -8,7 +8,7 @@ import com.rendog.client.commons.utils.ConnectionUtils
 import com.rendog.client.manager.Manager
 import com.rendog.client.module.modules.client.CommandConfig
 import com.rendog.client.util.text.MessageSendHelper
-import com.rendog.client.util.text.RemoveColorCode.removeColorCode
+import com.rendog.client.util.text.Color.deColorize
 import kotlin.collections.LinkedHashSet
 
 object RendogCDManager : Manager {
@@ -25,7 +25,7 @@ object RendogCDManager : Manager {
 
     fun inDatabase(item: String) : Boolean {
         return if (enabled) {
-            coolDown.containsKey(item.removeColorCode().trim())
+            coolDown.containsKey(item.deColorize().trim())
         } else {
             MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
             false
@@ -35,14 +35,14 @@ object RendogCDManager : Manager {
     fun getCD(item : String, rightClick : Boolean = true): Double {
         if (enabled) {
             return if (rightClick) {
-                if (coolDown.containsKey(item.removeColorCode())) {
-                    coolDown[item.removeColorCode()]!!.second
+                if (coolDown.containsKey(item.deColorize())) {
+                    coolDown[item.deColorize()]!!.second
                 } else {
                     0.0
                 }
             } else {
-                if (coolDown.containsKey(item.removeColorCode())) {
-                    coolDown[item.removeColorCode()]!!.first
+                if (coolDown.containsKey(item.deColorize())) {
+                    coolDown[item.deColorize()]!!.first
                 } else {
                     0.0
                 }
@@ -54,7 +54,7 @@ object RendogCDManager : Manager {
     }
 
     fun isAbleInVillage(item : String): Boolean {
-        return item.removeColorCode() in ableInVillage
+        return item.deColorize() in ableInVillage
     }
 
     fun loadCoolDownData(): Boolean {

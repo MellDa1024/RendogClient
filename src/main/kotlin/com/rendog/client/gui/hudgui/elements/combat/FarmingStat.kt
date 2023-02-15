@@ -2,12 +2,18 @@ package com.rendog.client.gui.hudgui.elements.combat
 
 import com.rendog.client.event.SafeClientEvent
 import com.rendog.client.gui.hudgui.LabelHud
+import com.rendog.client.util.Bind
 import com.rendog.client.util.color.ColorHolder
 import com.rendog.client.util.graphics.font.HAlign
-import com.rendog.client.util.text.RemoveColorCode.removeColorCode
+import com.rendog.client.util.text.Color.deColorize
+import com.rendog.client.util.text.MessageSendHelper
 import com.rendog.client.util.threads.safeListener
+import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.init.SoundEvents
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.fml.common.gameevent.InputEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
+import org.lwjgl.input.Keyboard
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -20,17 +26,21 @@ internal object FarmingStat : LabelHud(
 
     private val showTime by setting("Show Farming Time", true)
     private var block by setting("Block Loot Alert", false, description = "Block loot alert in client-side.")
-    private val timeColor by setting("Time Color", ColorHolder(87,116,255,255))
-    private val mobColor by setting("Mob Color", ColorHolder(255,87,87,255))
-    private val countColor by setting("Count Color", ColorHolder(255,255,255,255))
-    private val bracketColor by setting("Bracket Color", ColorHolder(190,190,190,255))
-    private var reset by setting("Reset Stat", false)
+    private val timeColor by setting("Time Color", ColorHolder(87, 116, 255, 255))
+    private val mobColor by setting("Mob Color", ColorHolder(255, 87, 87, 255))
+    private val countColor by setting("Count Color", ColorHolder(255, 255, 255, 255))
+    private val bracketColor by setting("Bracket Color", ColorHolder(190, 190, 190, 255))
+    private var reset by setting("Reset Stat", false, consumer = { _, _ ->
+        reset()
+        false
+    })
+    private val resetBind by setting("Reset Bind", Bind())
 
     private val lootPattern = Pattern.compile("^ {3}\\[ RD ] {3}\\[ (.*) ] 전리품을 획득하셨습니다\\.")
 
     private val playerStat = ConcurrentHashMap<String, Int>()
 
-    private val lootMap = mutableMapOf(
+    private val lootMap = mapOf(
         "목장돼지의 고기" to "목장돼지",
         "슬라임볼" to "슬라임",
         "신성한 묘목" to "숲의 수호자",
@@ -70,11 +80,14 @@ internal object FarmingStat : LabelHud(
         relativePosY = 0.3f
         dockingH = HAlign.RIGHT
 
+        safeListener<InputEvent.KeyInputEvent> {
+            if (resetBind.isEmpty) return@safeListener
+            val eventKey = Keyboard.getEventKey()
+            if (eventKey == Keyboard.KEY_NONE || Keyboard.isKeyDown(Keyboard.KEY_F3)) return@safeListener
+            if (resetBind.isDown(eventKey)) reset()
+        }
+
         safeListener<TickEvent.ClientTickEvent> {
-            if (reset) {
-                firstOpen = true
-                reset = false
-            }
             if (firstOpen) {
                 startTime = System.currentTimeMillis()
                 playerStat.clear()
@@ -82,14 +95,20 @@ internal object FarmingStat : LabelHud(
             }
         }
         safeListener<ClientChatReceivedEvent> {
-            if (!it.message.unformattedText.removeColorCode().startsWith("   [ RD ]")) return@safeListener
-            val patternedMessage = lootPattern.matcher(it.message.unformattedText.removeColorCode())
+            if (!it.message.unformattedText.deColorize().startsWith("   [ RD ]")) return@safeListener
+            val patternedMessage = lootPattern.matcher(it.message.unformattedText.deColorize())
             if (!patternedMessage.find()) return@safeListener
             lootMap[patternedMessage.group(1)]?.let { lootItem ->
                 playerStat[lootItem] = playerStat[lootItem]?.plus(1) ?: 1
             }
             if (block) it.isCanceled = true
         }
+    }
+
+    fun reset() {
+        firstOpen = true
+        MessageSendHelper.sendWarningMessage("[${name}] FarmingData Cleared.")
+        mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
     }
 
     override fun SafeClientEvent.updateText() {
@@ -99,13 +118,14 @@ internal object FarmingStat : LabelHud(
         } else {
             displayText.addLine("Hunted Mobs : ")
             for (mob in playerStat) {
-                displayText.add("${mob.key}", mobColor)
+                displayText.add(mob.key, mobColor)
                 displayText.add(":", bracketColor)
                 displayText.addLine("${mob.value}", countColor)
             }
         }
     }
-    private fun timeBuilder() : String {
+
+    private fun timeBuilder(): String {
         val timePassed = System.currentTimeMillis() - startTime
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(timePassed),
             TimeUnit.MILLISECONDS.toMinutes(timePassed) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timePassed)),
