@@ -55,7 +55,7 @@ object RendogCDManager : Manager {
             val rawJson = ConnectionUtils.requestRawJsonFrom(url)
             coolDownData = gson.fromJson(rawJson, object : TypeToken<WeaponDataList>() {}.type)
             coolDown.clear()
-            if (availableVersion.contains(coolDownData.version)) {
+            if (!availableVersion.contains(coolDownData.version)) {
                 RendogMod.LOG.error("CoolDownData needs RendogClient version ${coolDownData.version} or higher, but your version is in ${RendogMod.VERSION}, The RendogClient Needs Update.")
                 RendogMod.LOG.error("Update your RendogClient to new version.")
                 return false
