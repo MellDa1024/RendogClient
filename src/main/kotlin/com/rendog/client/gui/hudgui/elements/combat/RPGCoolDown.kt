@@ -10,6 +10,8 @@ import com.rendog.client.util.graphics.RenderUtils2D
 import com.rendog.client.util.graphics.VertexHelper
 import com.rendog.client.util.graphics.font.HAlign
 import com.rendog.client.util.math.Vec2d
+import com.rendog.client.util.rendog.CoolDownType
+import com.rendog.client.util.rendog.PlayerWeaponCD
 import com.rendog.client.util.text.Color.deColorize
 import com.rendog.client.util.text.MessageSendHelper
 import com.rendog.client.util.threads.runSafe
@@ -57,12 +59,8 @@ internal object RPGCoolDown : HudElement(
         DataBase, Chat, Both
     }
 
-    data class PWeaponCoolDown(var leftCD: Long, var rightCD: Long)
-
-    enum class CoolDownType { LEFT, RIGHT }
-
     private var lastSwapTime = currentTimeMillis()
-    private var itemCD = ConcurrentHashMap<String, PWeaponCoolDown>() //left, right
+    private var invItemCD = ConcurrentHashMap<String, PlayerWeaponCD>() //left, right
     private var firstOpen = true
     private var rightClickChat = ""
     private var leftClickChat = ""
@@ -80,7 +78,7 @@ internal object RPGCoolDown : HudElement(
     init {
         safeListener<TickEvent.ClientTickEvent> {
             if (firstOpen) {
-                itemCD.clear()
+                invItemCD.clear()
                 runSafe { updateWeaponInv() }
                 firstOpen = false
             }
@@ -94,7 +92,7 @@ internal object RPGCoolDown : HudElement(
         safeListener<ClientChatReceivedEvent> { //moonlight
             if (moonlightName == "") return@safeListener
             if (it.message.unformattedText.trim() == "문라이트가 영혼을 방출합니다!") {
-                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, RendogCDManager.getCD(moonlightName))
+                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, RendogCDManager.getCD(moonlightName, CoolDownType.RIGHT))
                 moonlightName = ""
             }
         }
@@ -105,14 +103,17 @@ internal object RPGCoolDown : HudElement(
                 rightClickChat = ""
                 return@safeListener
             }
+
             val patternedMessage = cdPattern.matcher(it.message.unformattedText.deColorize())
             val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.deColorize())
+
             if (patternedMessage.find()) {
                 updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, patternedMessage.group(1).toDouble())
             } else if (patternedMessage2.find()) {
                 val value = patternedMessage2.group(2).toDouble() + patternedMessage2.group(1).toDouble() * 60
                 updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, value)
             }
+
             rightClickChat = ""
         }
 
@@ -126,31 +127,36 @@ internal object RPGCoolDown : HudElement(
                 leftClickChat = ""
                 return@safeListener
             }
+
             val patternedMessage = cdPattern.matcher(it.message.unformattedText.deColorize())
             val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.deColorize())
+
             if (patternedMessage.find()) {
                 updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, patternedMessage.group(1).toDouble())
             } else if (patternedMessage2.find()) {
                 val value = patternedMessage2.group(2).toDouble() + patternedMessage2.group(1).toDouble() * 60
                 updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, value)
             }
+
             leftClickChat = ""
         }
 
         safeListener<PacketEvent.Send> { event -> //rightClick
             if (event.packet !is CPacketPlayerTryUseItem) return@safeListener
             if (firstOpen) return@safeListener
+
             val item = player.inventory.getCurrentItem()
-            if (!itemCD.containsKey(item.displayName)) {
-                item.addWeaponCDData()
-            }
+
+            if (!invItemCD.containsKey(item.displayName)) item.addWeaponCDData()
+
             if (method != Method.DataBase) chatDetectionUpdate(CoolDownType.RIGHT, player.inventory.getCurrentItem().displayName)
             if (method == Method.Chat) return@safeListener
+
             if (checkVillageAndValidation(item)) {
                 if (item.displayName.contains("문라이트") && !item.displayName.contains("초월")) {
                     moonlightName = item.displayName
-                } else if ((itemCD[item.displayName]!!.rightCD - currentTimeMillis()) <= 0) {
-                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, RendogCDManager.getCD(item.displayName))
+                } else if ((invItemCD[item.displayName]!!.rightCD - currentTimeMillis()) <= 0) {
+                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, RendogCDManager.getCD(item.displayName, CoolDownType.RIGHT))
                 }
             }
         }
@@ -158,20 +164,22 @@ internal object RPGCoolDown : HudElement(
         safeListener<PacketEvent.Send> { event -> //leftClick
             if (event.packet !is CPacketAnimation) return@safeListener
             if (firstOpen) return@safeListener
+
             if (event.packet.hand != EnumHand.MAIN_HAND) return@safeListener
             val item = player.inventory.getCurrentItem()
-            if (!itemCD.containsKey(item.displayName)) {
-                item.addWeaponCDData()
-            }
+
+            if (!invItemCD.containsKey(item.displayName)) item.addWeaponCDData()
+
             if (method != Method.DataBase) {
                 if (currentTimeMillis() - lastSwapTime >= chatDelay.toLong()) {
                     chatDetectionUpdate(CoolDownType.LEFT, player.inventory.getCurrentItem().displayName)
                 } else chatDetectionUpdate(CoolDownType.LEFT, "")
             }
             if (method == Method.Chat) return@safeListener
+
             if (checkVillageAndValidation(item)) {
-                if ((itemCD[player.inventory.getCurrentItem().displayName]!!.leftCD - currentTimeMillis()) <= 0) {
-                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, RendogCDManager.getCD(item.displayName, false))
+                if ((invItemCD[player.inventory.getCurrentItem().displayName]!!.leftCD - currentTimeMillis()) <= 0) {
+                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, RendogCDManager.getCD(item.displayName, CoolDownType.LEFT))
                 }
             }
         }
@@ -179,22 +187,22 @@ internal object RPGCoolDown : HudElement(
 
     private fun updateWeaponCoolDown(weaponName: String, coolDownType: CoolDownType, value: Double) {
         when (coolDownType) {
-            CoolDownType.RIGHT -> itemCD[weaponName]?.rightCD = currentTimeMillis() + (1000 * value).toLong()
-            CoolDownType.LEFT -> itemCD[weaponName]?.leftCD = currentTimeMillis() + (1000 * value).toLong()
+            CoolDownType.RIGHT -> invItemCD[weaponName]?.rightCD = currentTimeMillis() + (1000 * value).toLong()
+            CoolDownType.LEFT -> invItemCD[weaponName]?.leftCD = currentTimeMillis() + (1000 * value).toLong()
         }
     }
 
     private fun SafeClientEvent.updateWeaponInv() {
         for (i in 0..36) {
             val item = player.inventory.getStackInSlot(i)
-            if (!itemCD.containsKey(item.displayName)) {
+            if (!invItemCD.containsKey(item.displayName)) {
                 item.addWeaponCDData()
             }
         }
     }
 
     private fun ItemStack.addWeaponCDData() {
-        itemCD[this.displayName] = PWeaponCoolDown(currentTimeMillis(), currentTimeMillis())
+        invItemCD[this.displayName] = PlayerWeaponCD(currentTimeMillis(), currentTimeMillis())
     }
 
     private fun SafeClientEvent.checkVillageAndValidation(item: ItemStack): Boolean {
@@ -228,7 +236,7 @@ internal object RPGCoolDown : HudElement(
     override fun renderHud(vertexHelper: VertexHelper) {
         if (background) drawFrame(vertexHelper)
         GlStateManager.pushMatrix()
-        if (itemCD.isNotEmpty() && !firstOpen) {
+        if (invItemCD.isNotEmpty() && !firstOpen) {
             if (extension != 0) for (i in (4 - extension) * 9 until 36) drawItem(i)
             for (i in 0..8) drawItem(i)
             GlStateManager.popMatrix()
@@ -238,8 +246,8 @@ internal object RPGCoolDown : HudElement(
     private fun drawItem(slot: Int) {
         runSafe {
             val item = player.inventory.getStackInSlot(slot)
-            if (itemCD.containsKey(item.displayName)) {
-                val rightcoold = ((itemCD[item.displayName]!!.rightCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
+            if (invItemCD.containsKey(item.displayName)) {
+                val rightcoold = ((invItemCD[item.displayName]!!.rightCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
                 if (rightcoold <= 0) drawItem(item, 2, 2, "")
                 else if (rightcoold > 60) {
                     if (colorCode) drawItem(item, 2, 2, "§c${convert2Min(rightcoold)}")
@@ -249,7 +257,7 @@ internal object RPGCoolDown : HudElement(
                     else drawItem(item, 2, 2, "$rightcoold")
                 }
                 GlStateManager.translate(0.0f, -11.1f, 0.0f)
-                val leftcoold = ((itemCD[item.displayName]!!.leftCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
+                val leftcoold = ((invItemCD[item.displayName]!!.leftCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
                 if (leftcoold <= 0) drawItem(item, 2, 2, "", true)
                 else if (leftcoold > 60) {
                     if (colorCode) drawItem(item, 2, 2, "§e${convert2Min(leftcoold)}}", true)
@@ -279,7 +287,6 @@ internal object RPGCoolDown : HudElement(
         if (horizontal) RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(180.0, 20.0 * (extension + 1)), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
         else RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0 * (extension + 1), 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
     }
-
 
     private fun drawItem(itemStack: ItemStack, x: Int, y: Int, text: String? = null, invisibleItem: Boolean = false) {
         GlStateUtils.blend(true)

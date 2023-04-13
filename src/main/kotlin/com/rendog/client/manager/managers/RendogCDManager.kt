@@ -7,17 +7,19 @@ import com.rendog.client.RendogMod
 import com.rendog.client.commons.utils.ConnectionUtils
 import com.rendog.client.manager.Manager
 import com.rendog.client.module.modules.client.CommandConfig
+import com.rendog.client.util.rendog.CoolDownType
+import com.rendog.client.util.rendog.WeaponCDData
 import com.rendog.client.util.text.MessageSendHelper
 import com.rendog.client.util.text.Color.deColorize
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.LinkedHashSet
 
 object RendogCDManager : Manager {
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
-    private var coolDown = mutableMapOf("" to Pair(0.0,0.0))
+    private var coolDown = ConcurrentHashMap<String, WeaponCDData>()
     private lateinit var coolDownData: WeaponDataList
-    private val ableInVillage = mutableListOf("")
     private var enabled = false
     private val availableVersion = mutableListOf("b4, b5, b6")
 
@@ -32,29 +34,20 @@ object RendogCDManager : Manager {
         }
     }
 
-    fun getCD(item : String, rightClick : Boolean = true): Double {
-        if (enabled) {
-            return if (rightClick) {
-                if (coolDown.containsKey(item.deColorize())) {
-                    coolDown[item.deColorize()]!!.second
-                } else {
-                    0.0
-                }
-            } else {
-                if (coolDown.containsKey(item.deColorize())) {
-                    coolDown[item.deColorize()]!!.first
-                } else {
-                    0.0
-                }
+    fun getCD(item : String, cdType : CoolDownType): Double {
+        return if (enabled) {
+            when (cdType) {
+                CoolDownType.RIGHT -> coolDown[item.deColorize()]?.rightCD ?: 0.0
+                CoolDownType.LEFT -> coolDown[item.deColorize()]?.leftCD ?: 0.0
             }
         } else {
             MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
-            return 0.0
+            0.0
         }
     }
 
     fun isAbleInVillage(item : String): Boolean {
-        return item.deColorize() in ableInVillage
+        return coolDown[item.deColorize()]?.inVillage ?: false
     }
 
     fun loadCoolDownData(): Boolean {
@@ -62,51 +55,31 @@ object RendogCDManager : Manager {
             val rawJson = ConnectionUtils.requestRawJsonFrom(url)
             coolDownData = gson.fromJson(rawJson, object : TypeToken<WeaponDataList>() {}.type)
             coolDown.clear()
-            ableInVillage.clear()
             if (availableVersion.contains(coolDownData.version)) {
                 RendogMod.LOG.error("CoolDownData needs RendogClient version ${coolDownData.version} or higher, but your version is in ${RendogMod.VERSION}, The RendogClient Needs Update.")
                 RendogMod.LOG.error("Update your RendogClient to new version.")
                 return false
             }
             else {
-                for (i in coolDownData.weaponList) {
-                    if (i.maxLevel == -1) {
-                        val modifiedWeaponName = i.weaponName + " [ SPECIAL ]"
-                        coolDown[modifiedWeaponName] = Pair(i.leftCD[0], i.rightCD[0])
-                        if (i.inVillage) {
-                            ableInVillage.add(modifiedWeaponName)
-                        }
-                    }
-                    else if (i.weaponName.contains("< 초월 >")) {
-                        val modifiedWeaponName = i.weaponName + " [ MAX ]"
-                        coolDown[modifiedWeaponName] = Pair(i.leftCD[0], i.rightCD[0])
-                        if (i.inVillage) {
-                            ableInVillage.add(modifiedWeaponName)
-                        }
-                    }
-                    else if (i.maxLevel == 1) {
-                        coolDown[i.weaponName] = Pair(i.leftCD[0], i.rightCD[0])
-                        if (i.inVillage) {
-                            ableInVillage.add(i.weaponName)
+                coolDownData.weaponList.forEach { weaponData ->
+                    if (weaponData.maxLevel > 1) {
+                        for (lvl in 1 until weaponData.maxLevel + 1) {
+                            val modifiedWeaponName =
+                                if (weaponData.maxLevel != lvl) weaponData.weaponName + " [ +$lvl ]"
+                                else weaponData.weaponName + " [ MAX ]"
+
+                            if (!weaponData.changeByLevel) register(modifiedWeaponName, weaponData, 0)
+                            else register(modifiedWeaponName, weaponData, lvl - 1)
                         }
                     }
                     else {
-                        var modifiedWeaponName: String
-                        for (j in 0 until i.maxLevel) {
-                            modifiedWeaponName = if (i.maxLevel-1 != j) {
-                                i.weaponName + " [ +${j+1} ]"
-                            } else {
-                                i.weaponName + " [ MAX ]"
-                            }
-                            if (!i.changeByLevel) {
-                                coolDown[modifiedWeaponName] = Pair(i.leftCD[0], i.rightCD[0])
-                            } else {
-                                coolDown[modifiedWeaponName] = Pair(i.leftCD[j], i.rightCD[j])
-                            }
-                            if (i.inVillage) {
-                                ableInVillage.add(modifiedWeaponName)
-                            }
+                        val modifiedWeaponName = weaponData.weaponName + when {
+                            weaponData.maxLevel == -1 -> " [ SPECIAL ]"
+                            weaponData.weaponName.contains("< 초월 >") -> " [ MAX ] (거래 불가)"
+                            weaponData.maxLevel == 1 -> ""
+                            else -> throw Exception("Cannot Recognize the Weapon, WeaponName : ${weaponData.weaponName}")
                         }
+                        register(modifiedWeaponName, weaponData, 0)
                     }
                 }
             }
@@ -117,6 +90,11 @@ object RendogCDManager : Manager {
             RendogMod.LOG.error("Failed loading CoolDownData : ", e)
             return false
         }
+    }
+
+    private fun register(weaponName : String, weaponData: WeaponData, cdIndex : Int) {
+        coolDown[weaponName] = WeaponCDData(weaponData.leftCD[cdIndex], weaponData.rightCD[cdIndex], weaponData.inVillage)
+        //RendogMod.LOG.info("$weaponName registered. Data : ${coolDown[weaponName]}")
     }
 
     data class WeaponDataList(
