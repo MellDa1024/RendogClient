@@ -1,10 +1,11 @@
 {
   "required": true,
   "compatibilityLevel": "JAVA_8",
-  "package": "com.rendog.mixin",
+  "package": "kr.rendog.mixin",
   "refmap": "mixins.rendog.refmap.json",
   "client": [
     "MixinMinecraft",
+    "MixinStateImplementation",
     "accessor.AccessorAnvilChunkLoader",
     "accessor.AccessorEntity",
     "accessor.AccessorEntityFireworkRocket",
@@ -15,11 +16,15 @@
     "accessor.gui.AccessorGuiChat",
     "accessor.gui.AccessorGuiDisconnected",
     "accessor.gui.AccessorGuiEditSign",
+    "accessor.gui.AccessorGuiScreen",
     "accessor.network.AccessorCPacketChatMessage",
     "accessor.network.AccessorCPacketCloseWindow",
     "accessor.network.AccessorCPacketPlayer",
     "accessor.network.AccessorCPacketUseEntity",
+    "accessor.network.AccessorCPacketVehicleMove",
     "accessor.network.AccessorSPacketChat",
+    "accessor.network.AccessorSPacketEntity",
+    "accessor.network.AccessorSPacketEntityHeadLook",
     "accessor.network.AccessorSPacketEntityVelocity",
     "accessor.network.AccessorSPacketExplosion",
     "accessor.network.AccessorSPacketPosLook",
@@ -29,10 +34,14 @@
     "accessor.render.AccessorRenderManager",
     "accessor.render.AccessorShaderGroup",
     "accessor.render.AccessorViewFrustum",
+    "entity.MixinEntityLivingBase",
     "gui.MixinGuiChat",
     "gui.MixinGuiInventory",
     "gui.MixinGuiMainMenu",
+    "gui.MixinGuiMultiplayer",
+    "gui.MixinGuiNewChat",
     "gui.MixinGuiPlayerTabOverlay",
+    "network.MixinNetHandlerPlayClient",
     "network.MixinNetworkManager",
     "optifine.MixinConfig",
     "player.MixinEntityPlayer",
@@ -46,6 +55,6 @@
     "render.MixinRenderLivingBase",
     "render.MixinRenderManager",
     "render.MixinRenderPlayer",
-    "render.MixinTileEntityRendererDispatcher"
+    "world.MixinWorld"
   ]
 }
