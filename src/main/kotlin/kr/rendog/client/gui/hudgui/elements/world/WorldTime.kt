@@ -3,7 +3,6 @@ package kr.rendog.client.gui.hudgui.elements.world
 import kr.rendog.client.commons.interfaces.DisplayEnum
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
-import kr.rendog.client.util.graphics.font.HAlign
 import org.apache.commons.lang3.time.DurationFormatUtils
 
 internal object WorldTime : LabelHud(

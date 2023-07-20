@@ -2,9 +2,7 @@ package kr.rendog.client.gui.hudgui.elements.world
 
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
-import kr.rendog.client.util.graphics.font.HAlign
 import kr.rendog.client.util.graphics.font.TextComponent
-import kr.rendog.client.util.math.VectorUtils.times
 import net.minecraft.util.math.Vec3d
 
 internal object Coordinates : LabelHud(

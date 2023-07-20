@@ -4,7 +4,6 @@ import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
 import kr.rendog.client.util.combat.HealthUtils.getRendogCurrentHealth
 import kr.rendog.client.util.combat.HealthUtils.getRendogMaxHealth
-import kr.rendog.client.util.graphics.font.HAlign
 import kotlin.math.roundToInt
 
 internal object Health : LabelHud(

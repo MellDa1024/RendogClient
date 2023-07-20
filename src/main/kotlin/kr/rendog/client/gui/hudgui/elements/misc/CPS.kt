@@ -6,7 +6,6 @@ import kr.rendog.client.event.listener.listener
 import kr.rendog.client.gui.hudgui.LabelHud
 import kr.rendog.client.util.TickTimer
 import kr.rendog.client.util.graphics.AnimationUtils
-import kr.rendog.client.util.graphics.font.HAlign
 import net.minecraftforge.fml.common.gameevent.InputEvent
 import org.lwjgl.input.Mouse
 

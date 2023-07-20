@@ -1,5 +1,7 @@
 package kr.rendog.client.module.modules.client
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.rendog.client.RendogMod
 import kr.rendog.client.commons.interfaces.DisplayEnum
 import kr.rendog.client.event.events.ConnectionEvent
@@ -21,10 +23,6 @@ import kr.rendog.client.util.text.MessageSendHelper
 import kr.rendog.client.util.text.formatValue
 import kr.rendog.client.util.threads.BackgroundScope
 import kr.rendog.client.util.threads.defaultScope
-import kr.rendog.client.util.threads.safeListener
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths

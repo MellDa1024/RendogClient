@@ -5,7 +5,6 @@ import kr.rendog.client.commons.utils.MathUtils
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
 import kr.rendog.client.util.InfoCalculator.speed
-import kr.rendog.client.util.graphics.font.HAlign
 import java.util.*
 
 internal object PlayerSpeed : LabelHud(

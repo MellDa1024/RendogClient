@@ -3,7 +3,6 @@ package kr.rendog.client.gui.hudgui.elements.player
 import kr.rendog.client.commons.utils.MathUtils
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
-import kr.rendog.client.util.graphics.font.HAlign
 import kr.rendog.client.util.math.RotationUtils
 
 internal object Rotation : LabelHud(

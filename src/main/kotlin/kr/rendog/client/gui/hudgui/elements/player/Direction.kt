@@ -3,7 +3,6 @@ package kr.rendog.client.gui.hudgui.elements.player
 import kr.rendog.client.commons.interfaces.DisplayEnum
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
-import kr.rendog.client.util.graphics.font.HAlign
 import kr.rendog.client.util.math.Direction
 
 internal object Direction : LabelHud(

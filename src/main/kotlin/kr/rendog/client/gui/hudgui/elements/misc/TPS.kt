@@ -5,7 +5,6 @@ import kr.rendog.client.gui.hudgui.LabelHud
 import kr.rendog.client.util.CircularArray
 import kr.rendog.client.util.CircularArray.Companion.average
 import kr.rendog.client.util.TpsCalculator
-import kr.rendog.client.util.graphics.font.HAlign
 
 internal object TPS : LabelHud(
     name = "TPS",

@@ -1,18 +1,13 @@
 package kr.rendog.client.manager.managers
 
-import kr.rendog.client.manager.Manager
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
-import kr.rendog.client.capeapi.PlayerProfile
 import kr.rendog.client.RendogMod
-import kr.rendog.client.util.ConfigUtils
+import kr.rendog.client.capeapi.PlayerProfile
 import kr.rendog.client.commons.extension.synchronized
 import kr.rendog.client.commons.utils.ConnectionUtils
-import kr.rendog.client.util.FolderUtils
-import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
+import kr.rendog.client.manager.Manager
 
 object GuideManager : Manager {
     private val gson = GsonBuilder().setPrettyPrinting().create()

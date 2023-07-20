@@ -1,5 +1,6 @@
 package kr.rendog.client.manager.managers
 
+import kotlinx.coroutines.runBlocking
 import kr.rendog.client.RendogMod
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.event.events.ConnectionEvent
@@ -10,10 +11,8 @@ import kr.rendog.client.manager.Manager
 import kr.rendog.client.module.AbstractModule
 import kr.rendog.client.util.TaskState
 import kr.rendog.client.util.TickTimer
-import kr.rendog.client.util.items.removeHoldingItem
 import kr.rendog.client.util.threads.onMainThreadSafe
 import kr.rendog.client.util.threads.safeListener
-import kotlinx.coroutines.runBlocking
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.inventory.ClickType
 import net.minecraft.inventory.Container

@@ -4,7 +4,6 @@ import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
 import kr.rendog.client.util.CircularArray
 import kr.rendog.client.util.graphics.AnimationUtils
-import kr.rendog.client.util.graphics.font.HAlign
 import kotlin.math.roundToInt
 
 internal object FPS : LabelHud(

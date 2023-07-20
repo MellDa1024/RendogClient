@@ -2,7 +2,6 @@ package kr.rendog.client.gui.hudgui.elements.misc
 
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
-import kr.rendog.client.util.graphics.font.HAlign
 
 internal object MemoryUsage : LabelHud(
     name = "MemoryUsage",
