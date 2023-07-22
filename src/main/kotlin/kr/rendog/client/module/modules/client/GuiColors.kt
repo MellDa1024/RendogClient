@@ -12,7 +12,7 @@ object GuiColors : Module(
     alwaysEnabled = true
 ) {
     private val primarySetting by setting("Primary Color", ColorHolder(19, 86, 184, 255))
-    private val outlineSetting by setting("Outline Color", ColorHolder(131, 131, 131, 200))
+    private val outlineSetting by setting("Outline Color", ColorHolder(210, 210, 255, 200))
     private val backgroundSetting by setting("Background Color", ColorHolder(12, 43, 77, 235))
     private val textSetting by setting("Text Color", ColorHolder(255, 255, 255, 255))
     private val aHover by setting("Hover Alpha", 32, 0..255, 1)
