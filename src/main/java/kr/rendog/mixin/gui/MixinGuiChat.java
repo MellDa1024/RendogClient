@@ -1,6 +1,6 @@
 package kr.rendog.mixin.gui;
 
-import kr.rendog.client.command.CommandManager;
+import kr.rendog.client.gui.mc.KoreanGuiChat;
 import kr.rendog.client.gui.mc.RendogGuiChat;
 import kr.rendog.client.util.Wrapper;
 import net.minecraft.client.gui.GuiChat;
@@ -19,13 +19,15 @@ public abstract class MixinGuiChat extends GuiScreen {
     @Shadow private String historyBuffer;
     @Shadow private int sentHistoryCursor;
 
-    @Inject(method = "keyTyped(CI)V", at = @At("RETURN"))
-    public void returnKeyTyped(char typedChar, int keyCode, CallbackInfo info) {
+    @Inject(method = "initGui", at = @At("RETURN"))
+    public void returnInitGui(CallbackInfo info) {
         GuiScreen currentScreen = Wrapper.getMinecraft().currentScreen;
-        if (currentScreen instanceof GuiChat && !(currentScreen instanceof RendogGuiChat)
-            && inputField.getText().startsWith(CommandManager.INSTANCE.getPrefix())) {
-            Wrapper.getMinecraft().displayGuiScreen(new RendogGuiChat(inputField.getText(), historyBuffer, sentHistoryCursor));
+        if (currentScreen instanceof GuiChat) {
+            if (!(currentScreen instanceof KoreanGuiChat) && !(currentScreen instanceof RendogGuiChat)) {
+                Wrapper.getMinecraft().displayGuiScreen(
+                    new KoreanGuiChat(inputField.getText(), null, historyBuffer, sentHistoryCursor)
+                );
+            }
         }
     }
-
 }

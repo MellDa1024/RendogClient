@@ -4,7 +4,7 @@ import kr.rendog.client.command.CommandManager
 import kr.rendog.client.event.events.ConnectionEvent
 import kr.rendog.client.event.events.RenderWorldEvent
 import kr.rendog.client.event.events.ResolutionUpdateEvent
-import kr.rendog.client.gui.mc.RendogGuiChat
+import kr.rendog.client.gui.mc.KoreanGuiChat
 import kr.rendog.client.module.ModuleManager
 import kr.rendog.client.util.Wrapper
 import kr.rendog.client.util.graphics.RendogTessellator
@@ -74,7 +74,7 @@ internal object ForgeEventProcessor {
             val prefix = CommandManager.prefix
             val typedChar = Keyboard.getEventCharacter().toString()
             if (prefix.length == 1 && typedChar.equals(CommandManager.prefix, true)) {
-                mc.displayGuiScreen(RendogGuiChat(CommandManager.prefix))
+                mc.displayGuiScreen(KoreanGuiChat(CommandManager.prefix))
             }
         }
 

@@ -47,8 +47,8 @@ RendogClient의 경우 기존 Lambda 클라이언트에서 흔히 "핵"이라고
 </details>
 
 ## 알려진 버그들
-> Creo의 KoreanChat 사용 시 RendogClient의 명령어 UI가 보이지 않고, 실행한 명령어가 과거 채팅 기록에 나오지 않는 현상
-
+> Creo의 KoreanChat 사용 시 RendogClient의 명령어 UI가 보이지 않고, 실행한 명령어가 과거 채팅 기록에 나오지 않는 현상  
+> ㄴ KoreanChat을 자체적으로 추가하였습니다.
 ## 주의 사항
 > 본 클라이언트/모드의 제작자는 Mell_Da(MellDa1024)로, 렌독서버의 총관리자는 RendogClient와 관계가 없음을 밝힙니다.
 > 그렇기에 본 프로젝트의 관리자 Mell_Da 본인은 로고에 대해서 일체의 소유권을 가지고 있지 않으며, 저작권 클래임이 들어올 시 즉각 삭제 혹은 기존 사진 파일을 대체하도록 하겠습니다.
