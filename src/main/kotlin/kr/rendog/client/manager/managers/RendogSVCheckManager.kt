@@ -13,9 +13,12 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 
 object RendogSVCheckManager : Manager {
     private val rendogSVIP = arrayOf("rendog.kr", "global.rendog.kr", "private-scn-sev99.scn.pw:1799")
+    private var logFired = false
+
     init {
         safeListener<TickEvent.ClientTickEvent> {
             if (it.phase != TickEvent.Phase.END) return@safeListener
+            if (logFired) return@safeListener
             if (mc.isSingleplayer) logDelay("RendogClient is only available in RendogServer.")
             val ip = mc.currentServerData?.serverIP ?: return@safeListener
             if (ip.lowercase() !in rendogSVIP) {
@@ -26,9 +29,11 @@ object RendogSVCheckManager : Manager {
     }
     private fun SafeClientEvent.logDelay(msg : String) {
         defaultScope.launch {
-            RendogMod.LOG.info("Player is not in RendogServer! Will disconnect in 1 second, maybe crash in SinglePlayer...")
+            logFired = true
+            RendogMod.LOG.info("Player is not in RendogServer! Will disconnect in 1 second, it may crash in SinglePlayer...")
             delay(1000L)
             connection.handleDisconnect(SPacketDisconnect(TextComponentString(msg)))
+            logFired = false
         }
     }
 }
