@@ -12,7 +12,7 @@ import net.minecraft.util.text.TextComponentString
 import net.minecraftforge.fml.common.gameevent.TickEvent
 
 object RendogSVCheckManager : Manager {
-    private val rendogSVIP = arrayOf("rendog.kr", "global.rendog.kr", "private-scn-sev99.scn.pw:1799")
+    private val rendogServerIp = arrayOf("rendog.kr", "global.rendog.kr", "private-scn-sev99.scn.pw:1799")
     private var logFired = false
 
     init {
@@ -21,12 +21,12 @@ object RendogSVCheckManager : Manager {
             if (logFired) return@safeListener
             if (mc.isSingleplayer) logDelay("RendogClient is only available in RendogServer.")
             val ip = mc.currentServerData?.serverIP ?: return@safeListener
-            if (ip.lowercase() !in rendogSVIP) {
+            if (ip.lowercase() !in rendogServerIp) {
                 logDelay("RendogClient is only available in RendogServer.")
             }
         }
-
     }
+
     private fun SafeClientEvent.logDelay(msg : String) {
         defaultScope.launch {
             logFired = true
