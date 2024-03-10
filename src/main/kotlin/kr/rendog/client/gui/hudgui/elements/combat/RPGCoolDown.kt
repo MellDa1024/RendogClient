@@ -1,9 +1,11 @@
 package kr.rendog.client.gui.hudgui.elements.combat
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.event.events.PacketEvent
 import kr.rendog.client.gui.hudgui.HudElement
-import kr.rendog.client.manager.managers.RendogCDManager
+import kr.rendog.client.manager.managers.WeaponCoolManager
 import kr.rendog.client.module.modules.client.GuiColors
 import kr.rendog.client.util.graphics.GlStateUtils
 import kr.rendog.client.util.graphics.RenderUtils2D
@@ -14,10 +16,10 @@ import kr.rendog.client.util.rendog.CoolDownType
 import kr.rendog.client.util.rendog.PlayerWeaponCD
 import kr.rendog.client.util.text.Color.deColorize
 import kr.rendog.client.util.text.MessageSendHelper
+import kr.rendog.client.util.threads.defaultScope
 import kr.rendog.client.util.threads.runSafe
 import kr.rendog.client.util.threads.safeListener
 import net.minecraft.client.audio.PositionedSoundRecord
-import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.init.SoundEvents
@@ -46,9 +48,10 @@ internal object RPGCoolDown : HudElement(
     private val extension by setting("Extension", 0, 0..3, 1, unit = " line")
     private val chatDelay by setting("Chat-Detection Delay", 150, 0..500, 10, { method != Method.DataBase }, description = "How many ms to client wait for detect next leftclick information, it the value is too small, it could cause overwriting other weapon's cooldown.")
     private val colorCode by setting("Colored CoolDown", true)
+    private val disableRenderingItem by setting("Disable Rendering Item", false, description = "Disables rendering item.")
     private var information by setting("Method Info", false, description = "Shows Each Methods Difference in chat.", consumer = { _, _ ->
         mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f))
-        MessageSendHelper.sendWarningMessage("§f§l[ §r§b§lRPGTimer Method Information §r§f§l]")
+        MessageSendHelper.sendWarningMessage("§f§l[ §r§b§lRPGCoolDown Method Information §r§f§l]")
         MessageSendHelper.sendWarningMessage("§6§lDataBase :§r brings CoolDown data from plugin's Database.\nThe item which isn't in a database will be ignored.\nAlso, it will have a little cooldown desync with server.")
         MessageSendHelper.sendWarningMessage("§6§lChat :§r brings CoolDown data from RendogServer's Chat,\nAble to display any item's cooldown,\nbut should turn on the setting §o'Show Skill Cooldown'§r\nand click your item twice.")
         MessageSendHelper.sendWarningMessage("§6§lBoth :§r Use Both Method at the Same time.")
@@ -61,7 +64,8 @@ internal object RPGCoolDown : HudElement(
 
     private var lastSwapTime = currentTimeMillis()
     private var invItemCD = ConcurrentHashMap<String, PlayerWeaponCD>() //left, right
-    private var firstOpen = true
+    private var sentInformation = false
+    private var initialized = false
     private var rightClickChat = ""
     private var leftClickChat = ""
     private var moonlightName = ""
@@ -77,10 +81,20 @@ internal object RPGCoolDown : HudElement(
 
     init {
         safeListener<TickEvent.ClientTickEvent> {
-            if (firstOpen) {
+            if (!sentInformation) {
+                sentInformation = true
+                defaultScope.launch {
+                    delay(1500)
+                    MessageSendHelper.sendRawChatMessage(" ")
+                    MessageSendHelper.sendWarningMessage("렌독서버 공식 카페에 있는 '멜다의 렌독 런처' 카테고리에서 쿨타임 데이터 추가 및 수정 요청을 받고 있습니다.")
+                    MessageSendHelper.sendWarningMessage("많은 관심 부탁드립니다.")
+                    MessageSendHelper.sendRawChatMessage(" ")
+                }
+            }
+            if (!initialized) {
                 invItemCD.clear()
                 runSafe { updateWeaponInv() }
-                firstOpen = false
+                initialized = true
             }
         }
 
@@ -92,7 +106,7 @@ internal object RPGCoolDown : HudElement(
         safeListener<ClientChatReceivedEvent> { //moonlight
             if (moonlightName == "") return@safeListener
             if (it.message.unformattedText.trim() == "문라이트가 영혼을 방출합니다!") {
-                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, RendogCDManager.getCD(moonlightName, CoolDownType.RIGHT))
+                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, WeaponCoolManager.getCD(moonlightName, CoolDownType.RIGHT))
                 moonlightName = ""
             }
         }
@@ -143,7 +157,7 @@ internal object RPGCoolDown : HudElement(
 
         safeListener<PacketEvent.Send> { event -> //rightClick
             if (event.packet !is CPacketPlayerTryUseItem) return@safeListener
-            if (firstOpen) return@safeListener
+            if (!initialized) return@safeListener
 
             val item = player.inventory.getCurrentItem()
 
@@ -156,14 +170,14 @@ internal object RPGCoolDown : HudElement(
                 if (item.displayName.contains("문라이트") && !item.displayName.contains("초월")) {
                     moonlightName = item.displayName
                 } else if ((invItemCD[item.displayName]!!.rightCD - currentTimeMillis()) <= 0) {
-                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, RendogCDManager.getCD(item.displayName, CoolDownType.RIGHT))
+                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, WeaponCoolManager.getCD(item.displayName, CoolDownType.RIGHT))
                 }
             }
         }
 
         safeListener<PacketEvent.Send> { event -> //leftClick
             if (event.packet !is CPacketAnimation) return@safeListener
-            if (firstOpen) return@safeListener
+            if (!initialized) return@safeListener
 
             if (event.packet.hand != EnumHand.MAIN_HAND) return@safeListener
             val item = player.inventory.getCurrentItem()
@@ -179,7 +193,7 @@ internal object RPGCoolDown : HudElement(
 
             if (checkVillageAndValidation(item)) {
                 if ((invItemCD[player.inventory.getCurrentItem().displayName]!!.leftCD - currentTimeMillis()) <= 0) {
-                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, RendogCDManager.getCD(item.displayName, CoolDownType.LEFT))
+                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, WeaponCoolManager.getCD(item.displayName, CoolDownType.LEFT))
                 }
             }
         }
@@ -207,7 +221,7 @@ internal object RPGCoolDown : HudElement(
 
     private fun SafeClientEvent.checkVillageAndValidation(item: ItemStack): Boolean {
         return ((player.world.spawnPoint != BlockPos(278, 11, -134)) ||
-            ((player.world.spawnPoint == BlockPos(278, 11, -134)) && RendogCDManager.isAbleInVillage(item.displayName)))
+            ((player.world.spawnPoint == BlockPos(278, 11, -134)) && WeaponCoolManager.isAbleInVillage(item.displayName)))
     }
 
     private fun chatDetectionUpdate(coolDownType: CoolDownType, itemName: String) {
@@ -236,44 +250,43 @@ internal object RPGCoolDown : HudElement(
     override fun renderHud(vertexHelper: VertexHelper) {
         if (background) drawFrame(vertexHelper)
         GlStateManager.pushMatrix()
-        if (invItemCD.isNotEmpty() && !firstOpen) {
-            if (extension != 0) for (i in (4 - extension) * 9 until 36) drawItem(i)
-            for (i in 0..8) drawItem(i)
+        if (invItemCD.isNotEmpty() && initialized) {
+            if (extension != 0) for (i in (4 - extension) * 9 until 36) drawCoolDown(i)
+            for (i in 0..8) drawCoolDown(i)
             GlStateManager.popMatrix()
         }
     }
 
-    private fun drawItem(slot: Int) {
+    private fun drawCoolDown(slot: Int) {
         runSafe {
             val item = player.inventory.getStackInSlot(slot)
             if (invItemCD.containsKey(item.displayName)) {
-                val rightcoold = ((invItemCD[item.displayName]!!.rightCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
-                if (rightcoold <= 0) drawItem(item, 2, 2, "")
-                else if (rightcoold > 60) {
-                    if (colorCode) drawItem(item, 2, 2, "§c${convert2Min(rightcoold)}")
-                    else drawItem(item, 2, 2, convert2Min(rightcoold))
+                val rightCoold = ((invItemCD[item.displayName]!!.rightCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
+                val leftCoold = ((invItemCD[item.displayName]!!.leftCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
+
+                val rightCoolText = if (rightCoold <= 0) ""
+                else if (rightCoold > 60) {
+                    if (colorCode) "§c${convert2Min(rightCoold)}"
+                    else convert2Min(rightCoold)
                 } else {
-                    if (colorCode) drawItem(item, 2, 2, "§c$rightcoold")
-                    else drawItem(item, 2, 2, "$rightcoold")
+                    if (colorCode) "§c$rightCoold"
+                    else "$rightCoold"
                 }
-                GlStateManager.translate(0.0f, -11.1f, 0.0f)
-                val leftcoold = ((invItemCD[item.displayName]!!.leftCD - currentTimeMillis()).toDouble() / 100.0).roundToInt() / 10.0
-                if (leftcoold <= 0) drawItem(item, 2, 2, "", true)
-                else if (leftcoold > 60) {
-                    if (colorCode) drawItem(item, 2, 2, "§e${convert2Min(leftcoold)}}", true)
-                    else drawItem(item, 2, 2, convert2Min(leftcoold), true)
+                val leftCoolText = if (leftCoold <= 0) ""
+                else if (leftCoold > 60) {
+                    if (colorCode) "§e${convert2Min(leftCoold)}"
+                    else convert2Min(leftCoold)
                 } else {
-                    if (colorCode) drawItem(item, 2, 2, "§e$leftcoold", true)
-                    else drawItem(item, 2, 2, "$leftcoold", true)
+                    if (colorCode) "§e$leftCoold"
+                    else "$leftCoold"
                 }
-                GlStateManager.translate(0.0f, 11.1f, 0.0f)
-                if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
-                else GlStateManager.translate(0.0f, 20.0f, 0.0f)
+
+                drawCoolDownItem(item, 2, 2, rightCoolText, leftCoolText)
             } else {
-                drawItem(item, 2, 2, "")
-                if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
-                else GlStateManager.translate(0.0f, 20.0f, 0.0f)
+                drawCoolDownItem(item, 2, 2, "", "")
             }
+            if (horizontal) GlStateManager.translate(20.0f, 0.0f, 0.0f)
+            else GlStateManager.translate(0.0f, 20.0f, 0.0f)
             if ((slot + 1) % 9 == 0) {
                 if (horizontal) GlStateManager.translate(-180.0f, 20.0f, 0.0f)
                 else GlStateManager.translate(20.0f, -180.0f, 0.0f)
@@ -288,42 +301,30 @@ internal object RPGCoolDown : HudElement(
         else RenderUtils2D.drawRectOutline(vertexHelper, posEnd = Vec2d(20.0 * (extension + 1), 180.0), lineWidth = 2.5F, color = GuiColors.outline.apply { a = alpha })
     }
 
-    private fun drawItem(itemStack: ItemStack, x: Int, y: Int, text: String? = null, invisibleItem: Boolean = false) {
+    private fun drawCoolDownItem(itemStack: ItemStack, x: Int, y: Int, rightCool: String, leftCool: String) {
+        val fr = mc.fontRenderer
         GlStateUtils.blend(true)
         GlStateUtils.depth(true)
         RenderHelper.enableGUIStandardItemLighting()
 
         mc.renderItem.zLevel = 0.0f
-        if (!invisibleItem) mc.renderItem.renderItemAndEffectIntoGUI(itemStack, x, y)
-        if (invisibleItem) renderItemOverlayIntoGUI(mc.fontRenderer, itemStack, x, y, text, false)
-        else renderItemOverlayIntoGUI(mc.fontRenderer, itemStack, x, y, text)
+        if (!disableRenderingItem) mc.renderItem.renderItemAndEffectIntoGUI(itemStack, x, y)
 
-        mc.renderItem.zLevel = 0.0f
+        GlStateManager.disableLighting()
+        GlStateManager.disableDepth()
+        GlStateManager.disableBlend()
+
+        fr.drawStringWithShadow(leftCool, x.toFloat(), (y - 2).toFloat(), 16777215)
+        fr.drawStringWithShadow(rightCool, (x + 17 - fr.getStringWidth(rightCool)).toFloat(), (y + 9).toFloat(), 16777215)
+
+        GlStateManager.enableLighting()
+        GlStateManager.enableDepth()
+        GlStateManager.enableBlend()
 
         RenderHelper.disableStandardItemLighting()
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
 
         GlStateUtils.depth(false)
         GlStateUtils.texture2d(true)
-    }
-
-    private fun renderItemOverlayIntoGUI(fr: FontRenderer, stack: ItemStack, xPosition: Int, yPosition: Int, text: String?, rightAlign: Boolean = true) {
-        if (!stack.isEmpty) {
-            if (stack.count != 1 || text != null) {
-                val s = text ?: stack.count.toString()
-                GlStateManager.disableLighting()
-                GlStateManager.disableDepth()
-                GlStateManager.disableBlend()
-                val modifiedXPosition = if (rightAlign) {
-                    (xPosition + 17 - fr.getStringWidth(s)).toFloat()
-                } else {
-                    (xPosition).toFloat()
-                }
-                fr.drawStringWithShadow(s, modifiedXPosition, (yPosition + 9).toFloat(), 16777215)
-                GlStateManager.enableLighting()
-                GlStateManager.enableDepth()
-                GlStateManager.enableBlend()
-            }
-        }
     }
 }

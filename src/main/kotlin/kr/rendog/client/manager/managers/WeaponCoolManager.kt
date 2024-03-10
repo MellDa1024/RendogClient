@@ -14,7 +14,7 @@ import kr.rendog.client.util.text.Color.deColorize
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.LinkedHashSet
 
-object RendogCDManager : Manager {
+object WeaponCoolManager : Manager {
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -29,7 +29,7 @@ object RendogCDManager : Manager {
         return if (enabled) {
             coolDown.containsKey(item.deColorize().trim())
         } else {
-            MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
+            MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}weaponcool reload to reload data.")
             false
         }
     }
@@ -41,7 +41,7 @@ object RendogCDManager : Manager {
                 CoolDownType.LEFT -> coolDown[item.deColorize()]?.leftCD ?: 0.0
             }
         } else {
-            MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}rendogcd reload to reload data.")
+            MessageSendHelper.sendErrorMessage("Failed to load CoolDown data. type ${CommandConfig.prefix}weaponcool reload to reload data.")
             0.0
         }
     }

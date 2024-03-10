@@ -13,7 +13,7 @@ object ConfigUtils {
         var success = ConfigManager.loadAll()
         success = WaypointManager.loadWaypoints() && success // Waypoint
         success = GuideManager.loadGuides() && success
-        success = RendogCDManager.loadCoolDownData() && success
+        success = WeaponCoolManager.loadCoolDownData() && success
         success = LootDataManager.loadLootData() && success
         success = UUIDManager.load() && success // UUID Cache
 
