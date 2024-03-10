@@ -21,7 +21,7 @@ object WeaponCoolManager : Manager {
     private var coolDown = ConcurrentHashMap<String, WeaponCDData>()
     private lateinit var coolDownData: WeaponDataList
     private var enabled = false
-    private val availableVersion = mutableListOf("b7")
+    private val availableVersion = mutableListOf("b7", "b8")
 
     private const val url = "https://raw.githubusercontent.com/MellDa1024/RendogDataBase/main/WeaponDataV2.json"
 

@@ -26,7 +26,7 @@ class RendogMod {
         const val ID = "rendog"
         const val DIRECTORY = "RendogClient/"
 
-        const val VERSION = "b7"
+        const val VERSION = "b8"
 
         const val APP_ID = 1028753674148782130 // DiscordIPC
         const val DEPENDENCIES = "required-after:forge@[14.23.5.2860,);"
