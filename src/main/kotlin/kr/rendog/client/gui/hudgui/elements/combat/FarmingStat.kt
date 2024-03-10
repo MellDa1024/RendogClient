@@ -2,6 +2,7 @@ package kr.rendog.client.gui.hudgui.elements.combat
 
 import kr.rendog.client.event.SafeClientEvent
 import kr.rendog.client.gui.hudgui.LabelHud
+import kr.rendog.client.manager.managers.LootDataManager
 import kr.rendog.client.util.Bind
 import kr.rendog.client.util.color.ColorHolder
 import kr.rendog.client.util.graphics.font.HAlign
@@ -40,37 +41,6 @@ internal object FarmingStat : LabelHud(
 
     private val playerStat = ConcurrentHashMap<String, Int>()
 
-    private val lootMap = mapOf(
-        "목장돼지의 고기" to "목장돼지",
-        "슬라임볼" to "슬라임",
-        "신성한 묘목" to "숲의 수호자",
-        "라마의 가죽" to "초원라마",
-        "스켈레톤의 잔해" to "스켈레톤 검사",
-        "광부의 가족 사진" to "광산좀비",
-        "하이에나 가죽" to "하이에나",
-        "설인의 눈물" to "설인",
-        "얼어붙은 눈 결정" to "스트레이",
-        "먹다 남은 연어" to "아이스베어",
-        "황금 조각" to "해적 선원",
-        "골렘의 조각" to "사원 골렘",
-        "좀벌레의 눈" to "좀벌레",
-        "거미의 눈" to "동굴 거미",
-        "구아노" to "흡혈 박쥐",
-        "이름 모를 자의 영혼" to "네임리스", //Typo Problem
-        "이름 없는 자의 영혼" to "네임리스",
-        "심해의 돌" to "물의 수호자",
-        "수정석" to "수정괴물",
-        "수정 벌레의 등껍질" to "수정벌레",
-        "용암괴수의 잔해" to "용암괴수",
-        "마그마 리치의 구슬" to "마그마 리치",
-        "불의 꽃" to "불의 요정",
-        "어둠의 핵" to "타락한 망령",
-        "암흑물질" to "프랜틱 스켈레톤",
-        "괴생명체의 살점" to "괴생명체",
-        "고대잔해" to "스켈레톤 궁수 | 주술사",
-        "괴상한 호박" to "공허 악령"
-    )
-
     private var startTime = 0L
 
     private var firstOpen = true
@@ -94,12 +64,17 @@ internal object FarmingStat : LabelHud(
                 firstOpen = false
             }
         }
+
         safeListener<ClientChatReceivedEvent> {
             if (!it.message.unformattedText.deColorize().startsWith("   [ RD ]")) return@safeListener
             val patternedMessage = lootPattern.matcher(it.message.unformattedText.deColorize())
             if (!patternedMessage.find()) return@safeListener
-            lootMap[patternedMessage.group(1)]?.let { lootItem ->
-                playerStat[lootItem] = playerStat[lootItem]?.plus(1) ?: 1
+            val lootName = patternedMessage.group(1)
+            LootDataManager.getMobNameByLoot(lootName)?.let { mob ->
+                playerStat.computeIfAbsent(mob) { 0 }
+                playerStat.computeIfPresent(mob) { _, value ->
+                    value + 1
+                }
             }
             if (block) it.isCanceled = true
         }

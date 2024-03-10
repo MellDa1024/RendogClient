@@ -14,6 +14,7 @@ object ConfigUtils {
         success = WaypointManager.loadWaypoints() && success // Waypoint
         success = GuideManager.loadGuides() && success
         success = RendogCDManager.loadCoolDownData() && success
+        success = LootDataManager.loadLootData() && success
         success = UUIDManager.load() && success // UUID Cache
 
         return success
