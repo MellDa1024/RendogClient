@@ -13,7 +13,7 @@ object KoreanChat : Module(
     alwaysEnabled = true,
     showOnArray = false
 ) {
-    var language by setting("Language", Language.KOREAN)
+    var language by setting("Language", Language.KOREAN, description = "Language to use, you can use left ctrl key to switch.")
     var ctrlComboBypass by setting("CtrlComboBypass", true, description =  "Force to stop switching korean/english when player uses a ctrl combokey.")
     val debugging by setting("Debugging", false, description = "Logs something. I do not recommend to enable this without any reason.")
 
