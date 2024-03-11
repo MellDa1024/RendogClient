@@ -1,5 +1,6 @@
 package kr.rendog.client.gui.mc
 
+import kotlinx.coroutines.launch
 import kr.rendog.client.command.CommandManager
 import kr.rendog.client.command.args.AbstractArg
 import kr.rendog.client.command.args.AutoComplete
@@ -12,10 +13,10 @@ import kr.rendog.client.util.graphics.RenderUtils2D
 import kr.rendog.client.util.graphics.VertexHelper
 import kr.rendog.client.util.math.Vec2d
 import kr.rendog.client.util.threads.defaultScope
-import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiTextField
 import org.lwjgl.input.Keyboard
+import org.lwjgl.input.Mouse
 import kotlin.math.min
 
 class RendogGuiChat(
@@ -189,6 +190,10 @@ class RendogGuiChat(
             fontRenderer.drawStringWithShadow(predictString, posX, posY, 0x808080)
         }
 
+        mc.ingameGUI.chatGUI.getChatComponent(Mouse.getX(), Mouse.getY())?.let {
+            if (it.style.hoverEvent != null) handleComponentHover(it, mouseX, mouseY)
+        }
+
         // Draw normal string
         inputField.drawTextBox()
 
@@ -197,5 +202,4 @@ class RendogGuiChat(
         val pos4 = pos3.plus(inputField.width.toDouble(), inputField.height.toDouble())
         RenderUtils2D.drawRectOutline(vertexHelper, pos3, pos4, 1.5f, GuiColors.primary)
     }
-
 }

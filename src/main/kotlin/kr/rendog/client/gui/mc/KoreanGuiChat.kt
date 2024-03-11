@@ -90,10 +90,4 @@ class KoreanGuiChat(
             true
         }
     }
-
-
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        drawRect(2, height - 14, width - 2, height - 2, Int.MIN_VALUE)
-        inputField.drawTextBox()
-    }
 }
