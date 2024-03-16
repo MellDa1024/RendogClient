@@ -13,8 +13,8 @@ object ConfigUtils {
         var success = ConfigManager.loadAll()
         success = WaypointManager.loadWaypoints() && success // Waypoint
         success = GuideManager.loadGuides() && success
-        success = WeaponCoolManager.loadCoolDownData() && success
-        success = LootDataManager.loadLootData() && success
+        success = WeaponCoolManager.loadCoolDownDataFromGithub() && success
+        success = LootDataManager.loadLootDataFromGithub() && success
         success = UUIDManager.load() && success // UUID Cache
 
         return success
