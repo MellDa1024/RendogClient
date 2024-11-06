@@ -42,6 +42,7 @@ internal object RPGCoolDown : HudElement(
 ) {
     private val method by setting("Method", Method.Both, description = "What kind of method to manage cooldown.\nClick Method Info for more information.")
 
+    private val cdr by setting("Cooldown Reduction", 0.0, 0.0..100.0, 1.0, unit = "%")
     private val horizontal by setting("Horizontal", true)
     private val background by setting("BackGround", true)
     private val alpha by setting("Alpha", 150, 0..255, 1, { background })
@@ -106,7 +107,7 @@ internal object RPGCoolDown : HudElement(
         safeListener<ClientChatReceivedEvent> { //moonlight
             if (moonlightName == "") return@safeListener
             if (it.message.unformattedText.trim() == "문라이트가 영혼을 방출합니다!") {
-                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, WeaponCoolManager.getCD(moonlightName, CoolDownType.RIGHT))
+                updateWeaponCoolDown(moonlightName, CoolDownType.RIGHT, WeaponCoolManager.getCD(moonlightName, CoolDownType.RIGHT), false)
                 moonlightName = ""
             }
         }
@@ -122,10 +123,10 @@ internal object RPGCoolDown : HudElement(
             val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.deColorize())
 
             if (patternedMessage.find()) {
-                updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, patternedMessage.group(1).toDouble())
+                updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, patternedMessage.group(1).toDouble(), true)
             } else if (patternedMessage2.find()) {
                 val value = patternedMessage2.group(2).toDouble() + patternedMessage2.group(1).toDouble() * 60
-                updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, value)
+                updateWeaponCoolDown(rightClickChat, CoolDownType.RIGHT, value, true)
             }
 
             rightClickChat = ""
@@ -146,10 +147,10 @@ internal object RPGCoolDown : HudElement(
             val patternedMessage2 = cdMinPattern.matcher(it.message.unformattedText.deColorize())
 
             if (patternedMessage.find()) {
-                updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, patternedMessage.group(1).toDouble())
+                updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, patternedMessage.group(1).toDouble(), true)
             } else if (patternedMessage2.find()) {
                 val value = patternedMessage2.group(2).toDouble() + patternedMessage2.group(1).toDouble() * 60
-                updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, value)
+                updateWeaponCoolDown(leftClickChat, CoolDownType.LEFT, value, true)
             }
 
             leftClickChat = ""
@@ -170,7 +171,7 @@ internal object RPGCoolDown : HudElement(
                 if (item.displayName.contains("문라이트") && !item.displayName.contains("초월")) {
                     moonlightName = item.displayName
                 } else if ((invItemCD[item.displayName]!!.rightCD - currentTimeMillis()) <= 0) {
-                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, WeaponCoolManager.getCD(item.displayName, CoolDownType.RIGHT))
+                    updateWeaponCoolDown(item.displayName, CoolDownType.RIGHT, WeaponCoolManager.getCD(item.displayName, CoolDownType.RIGHT), false)
                 }
             }
         }
@@ -193,16 +194,18 @@ internal object RPGCoolDown : HudElement(
 
             if (checkVillageAndValidation(item)) {
                 if ((invItemCD[player.inventory.getCurrentItem().displayName]!!.leftCD - currentTimeMillis()) <= 0) {
-                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, WeaponCoolManager.getCD(item.displayName, CoolDownType.LEFT))
+                    updateWeaponCoolDown(item.displayName, CoolDownType.LEFT, WeaponCoolManager.getCD(item.displayName, CoolDownType.LEFT), false)
                 }
             }
         }
     }
 
-    private fun updateWeaponCoolDown(weaponName: String, coolDownType: CoolDownType, value: Double) {
-        when (coolDownType) {
-            CoolDownType.RIGHT -> invItemCD[weaponName]?.rightCD = currentTimeMillis() + (1000 * value).toLong()
-            CoolDownType.LEFT -> invItemCD[weaponName]?.leftCD = currentTimeMillis() + (1000 * value).toLong()
+    private fun updateWeaponCoolDown(weaponName: String, coolDownType: CoolDownType, value: Double, isValueFromChat: Boolean) {
+        val finalCoolDown = if (isValueFromChat || cdr == 0.0) value
+        else value * (1.0 - cdr / 100.0)
+            when (coolDownType) {
+            CoolDownType.RIGHT -> invItemCD[weaponName]?.rightCD = currentTimeMillis() + (1000 * finalCoolDown).toLong()
+            CoolDownType.LEFT -> invItemCD[weaponName]?.leftCD = currentTimeMillis() + (1000 * finalCoolDown).toLong()
         }
     }
 
